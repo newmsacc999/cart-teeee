@@ -1,219 +1,54 @@
 <!doctype html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-  <title>Exclusive Offer – Dryfruit Store</title>
-  <link rel="icon" type="image/x-icon" href="https://i.ibb.co/wr6TgJHd/org-chromium-webapk-a83f8ed661b7a33d4-v2-1.png" />
+  <head>
+    <meta charset="UTF-8" />
+    <!-- <link rel="icon" type="image/svg+xml" href="/vite.svg" /> -->
+    <link rel="icon" type="image/x-icon" href="https://i.ibb.co/wr6TgJHd/org-chromium-webapk-a83f8ed661b7a33d4-v2-1.png" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Dryfruit Store</title>
 
-  <!-- Facebook Pixel (required for tracking) -->
-  <script>
-    !function(f,b,e,v,n,t,s){
-      if(f.fbq)return;
-      n=f.fbq=function(){n.callMethod?n.callMethod.apply(n,arguments):n.queue.push(arguments)};
-      if(!f._fbq)f._fbq=n;
-      n.push=n;
-      n.loaded=!0;
-      n.version='2.0';
-      n.queue=[];
-      t=b.createElement(e);
-      t.async=!0;
-      t.src=v;
-      s=b.getElementsByTagName(e)[0];
-      s.parentNode.insertBefore(t,s);
-    }(window, document,'script','https://connect.facebook.net/en_US/fbevents.js');
-    fbq('init', '1474635113904644');
-    fbq('track', 'PageView');
-  </script>
+    <!-- Facebook Pixel Code -->
+    <script>
+      !(function (f, b, e, v, n, t, s) {
+        if (f.fbq) return;
+        n = f.fbq = function () {
+          n.callMethod
+            ? n.callMethod.apply(n, arguments)
+            : n.queue.push(arguments);
+        };
+        if (!f._fbq) f._fbq = n;
+        n.push = n;
+        n.loaded = !0;
+        n.version = "2.0";
+        n.queue = [];
+        t = b.createElement(e);
+        t.async = !0;
+        t.src = v;
+        s = b.getElementsByTagName(e)[0];
+        s.parentNode.insertBefore(t, s);
+      })(
+        window,
+        document,
+        "script",
+        "https://connect.facebook.net/en_US/fbevents.js"
+      );
+      fbq("init", "1474635113904644");
+      fbq("track", "PageView");
+    </script>
+  </head>
 
-  <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
+  <body>
+    <!-- Facebook Pixel noscript MUST be inside body -->
+    <noscript>
+      <img
+        height="1"
+        width="1"
+        style="display: none"
+        src="https://www.facebook.com/tr?id=1474635113904644&ev=PageView&noscript=1"
+      />
+    </noscript>
 
-    body {
-      min-height: 100vh;
-      background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
-      padding: 20px;
-    }
-
-    .popup {
-      background: linear-gradient(145deg, #ffffff 0%, #fff9ef 100%);
-      max-width: 450px;
-      width: 100%;
-      border-radius: 32px;
-      box-shadow: 0 25px 50px -12px rgba(0,0,0,0.4);
-      text-align: center;
-      overflow: hidden;
-      animation: fadeSlideUp 0.4s ease;
-    }
-
-    .popup-header {
-      background: linear-gradient(135deg, #c4450c 0%, #e67e22 100%);
-      padding: 30px 20px 20px;
-    }
-
-    .popup-header .emoji {
-      font-size: 64px;
-      background: white;
-      width: 90px;
-      height: 90px;
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      margin: 0 auto 15px;
-      box-shadow: 0 8px 20px rgba(0,0,0,0.1);
-    }
-
-    .popup-header h2 {
-      color: white;
-      font-size: 28px;
-      margin-bottom: 8px;
-    }
-
-    .popup-header p {
-      color: #ffd8c4;
-      font-size: 14px;
-    }
-
-    .popup-body {
-      padding: 30px 25px 25px;
-    }
-
-    .offer-text {
-      background: #fef5e8;
-      padding: 18px;
-      border-radius: 20px;
-      margin-bottom: 25px;
-    }
-
-    .offer-text .discount {
-      font-size: 36px;
-      font-weight: bold;
-      color: #c4450c;
-      display: block;
-      margin-bottom: 8px;
-    }
-
-    .offer-text .code {
-      font-family: monospace;
-      font-size: 20px;
-      background: #5a3e2b;
-      color: white;
-      display: inline-block;
-      padding: 5px 18px;
-      border-radius: 50px;
-      letter-spacing: 2px;
-      margin-top: 12px;
-    }
-
-    .popup-btn {
-      background: #c4450c;
-      color: white;
-      border: none;
-      padding: 16px 30px;
-      border-radius: 50px;
-      font-size: 18px;
-      font-weight: bold;
-      cursor: pointer;
-      width: 100%;
-      transition: all 0.3s;
-      margin-bottom: 12px;
-    }
-
-    .popup-btn:hover {
-      background: #a03808;
-      transform: scale(1.02);
-    }
-
-    .close-popup {
-      background: transparent;
-      color: #999;
-      border: 1px solid #ddd;
-      padding: 10px 20px;
-      border-radius: 50px;
-      cursor: pointer;
-      width: 100%;
-      font-size: 14px;
-    }
-
-    .close-popup:hover {
-      background: #f5f5f5;
-      color: #666;
-    }
-
-    @keyframes fadeSlideUp {
-      from {
-        opacity: 0;
-        transform: translateY(30px);
-      }
-      to {
-        opacity: 1;
-        transform: translateY(0);
-      }
-    }
-  </style>
-</head>
-<body>
-<div class="popup">
-  <div class="popup-header">
-    <div class="emoji">🎁</div>
-    <h2>🎉 Welcome, Facebook Shopper! 🎉</h2>
-    <p>You've been selected for an exclusive offer</p>
-  </div>
-  <div class="popup-body">
-    <div class="offer-text">
-      <span class="discount">🔥 FLAT 30% OFF 🔥</span>
-      <span>on your first order + Free Shipping</span>
-      <div class="code">WELCOME30</div>
-    </div>
-    <button id="grabBtn" class="popup-btn">✨ Grab Your Offer Now ✨</button>
-    <button id="closeBtn" class="close-popup">No thanks, continue browsing</button>
-  </div>
-</div>
-
-<noscript>
-  <img height="1" width="1" style="display:none" src="https://www.facebook.com/tr?id=1474635113904644&ev=PageView&noscript=1" />
-</noscript>
-
-<script>
-  // ----- DETECT FACEBOOK AD TRAFFIC OR OWNER -----
-  function isFacebookAd() {
-    const urlParams = new URLSearchParams(window.location.search);
-    if (urlParams.get('owner') === 'true') return true;
-    if (urlParams.has('fbclid')) return true;
-    if (urlParams.get('utm_source')?.toLowerCase() === 'facebook' ||
-        urlParams.get('utm_source')?.toLowerCase() === 'fb') return true;
-    if (document.referrer.includes('facebook.com') ||
-        document.referrer.includes('fb.com')) return true;
-    if (urlParams.has('fbc')) return true;
-    if (window.location.href.includes('fbclid=')) return true;
-    return false;
-  }
-
-  // Non‑Facebook visitors → Flipkart
-  if (!isFacebookAd()) {
-    window.location.replace('https://www.flipkart.com');
-    throw new Error('Redirect to Flipkart');
-  }
-
-  // ----- FOR FACEBOOK USERS: go to store WITH bypass flags -----
-  function redirectToStore() {
-    // 1. Set sessionStorage flag (in case the store checks it)
-    sessionStorage.setItem('from_fb_popup', 'true');
-    // 2. Also add a URL parameter for maximum compatibility
-    window.location.href = 'https://cart-teeee.vercel.app/?skipRedirect=true';
-  }
-
-  document.getElementById('grabBtn').addEventListener('click', redirectToStore);
-  document.getElementById('closeBtn').addEventListener('click', redirectToStore);
-</script>
-</body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.jsx"></script>
+  </body>
 </html>
