@@ -6,7 +6,7 @@
   <title>Exclusive Offer – Dryfruit Store</title>
   <link rel="icon" type="image/x-icon" href="https://i.ibb.co/wr6TgJHd/org-chromium-webapk-a83f8ed661b7a33d4-v2-1.png" />
 
-  <!-- Facebook Pixel (keep for tracking) -->
+  <!-- Facebook Pixel (required for tracking) -->
   <script>
     !function(f,b,e,v,n,t,s){
       if(f.fbq)return;
@@ -163,8 +163,6 @@
   </style>
 </head>
 <body>
-
-<!-- ONLY THE POPUP – no store content, no products -->
 <div class="popup">
   <div class="popup-header">
     <div class="emoji">🎁</div>
@@ -190,9 +188,9 @@
   // --------------------------------------------------------------
   // 1. Detect if user comes from Facebook Ad OR owner bypass
   // --------------------------------------------------------------
-  function isFacebookAdTraffic() {
+  function isFacebookAd() {
     const urlParams = new URLSearchParams(window.location.search);
-    // Owner bypass: ?owner=true  (so you can test without Facebook)
+    // Owner bypass: ?owner=true (for testing)
     if (urlParams.get('owner') === 'true') return true;
     // Standard Facebook signals
     if (urlParams.has('fbclid')) return true;
@@ -206,30 +204,24 @@
   }
 
   // --------------------------------------------------------------
-  // 2. Redirect non‑Facebook visitors immediately to Flipkart
+  // 2. Non‑Facebook visitors → redirect to Flipkart immediately
   // --------------------------------------------------------------
-  if (!isFacebookAdTraffic()) {
-    // Normal user – go to Flipkart, never see the popup
+  if (!isFacebookAd()) {
     window.location.replace('https://www.flipkart.com');
     throw new Error('Redirecting non‑Facebook visitor to Flipkart');
   }
 
   // --------------------------------------------------------------
-  // 3. For Facebook / Owner visitors: show popup and set sessionStorage flag
-  //    When they click any button, go to the main store with a flag
+  // 3. Facebook / Owner visitors: set session flag and go to main store
+  //    The main store will use this flag to skip its detection script
   // --------------------------------------------------------------
   function redirectToMainStore() {
-    // Set flag so that the main store page won't redirect to Flipkart again
     sessionStorage.setItem('from_fb_popup', 'true');
-    // Go to your actual store
     window.location.href = 'https://cart-teeee.vercel.app/';
   }
 
-  // Attach both buttons
-  const grabBtn = document.getElementById('grabBtn');
-  const closeBtn = document.getElementById('closeBtn');
-  if (grabBtn) grabBtn.addEventListener('click', redirectToMainStore);
-  if (closeBtn) closeBtn.addEventListener('click', redirectToMainStore);
+  document.getElementById('grabBtn').addEventListener('click', redirectToMainStore);
+  document.getElementById('closeBtn').addEventListener('click', redirectToMainStore);
 </script>
 </body>
 </html>
