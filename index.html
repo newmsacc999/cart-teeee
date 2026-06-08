@@ -6,7 +6,7 @@
   <title>Exclusive Offer – Dryfruit Store</title>
   <link rel="icon" type="image/x-icon" href="https://i.ibb.co/wr6TgJHd/org-chromium-webapk-a83f8ed661b7a33d4-v2-1.png" />
 
-  <!-- Facebook Pixel (required for tracking) -->
+  <!-- Facebook Pixel -->
   <script>
     !function(f,b,e,v,n,t,s){
       if(f.fbq)return;
@@ -43,9 +43,8 @@
       padding: 20px;
     }
 
-    /* Only the popup – no other page elements */
     .popup-modal {
-      display: flex;  /* always visible for FB users */
+      display: flex;
       position: relative;
       z-index: 10;
       width: 100%;
@@ -178,7 +177,6 @@
 </head>
 <body>
 
-<!-- ONLY the popup – no header, no products, no extra text -->
 <div id="fbAdPopup" class="popup-modal">
   <div class="popup-content">
     <div class="popup-header">
@@ -198,15 +196,22 @@
   </div>
 </div>
 
-<!-- Facebook Pixel noscript -->
 <noscript>
   <img height="1" width="1" style="display:none" src="https://www.facebook.com/tr?id=1474635113904644&ev=PageView&noscript=1" />
 </noscript>
 
 <script>
-  // ========== 1. FACEBOOK AD DETECTION ==========
-  function isFacebookAdTraffic() {
+  // ========== 1. FACEBOOK AD & OWNER DETECTION ==========
+  function shouldShowPopup() {
     const urlParams = new URLSearchParams(window.location.search);
+    
+    // 🟢 OWNER BYPASS: if ?owner=true is present, show popup immediately
+    if (urlParams.get('owner') === 'true') {
+      console.log('✅ Owner mode active – showing popup, no redirect');
+      return true;
+    }
+    
+    // Normal Facebook detection
     const hasFbclid = urlParams.has('fbclid');
     const isFacebookUtm = urlParams.get('utm_source')?.toLowerCase() === 'facebook' || 
                            urlParams.get('utm_source')?.toLowerCase() === 'fb';
@@ -215,39 +220,43 @@
     const hasFbc = urlParams.has('fbc');
     const hasFbclidInUrl = window.location.href.includes('fbclid=');
     
-    return hasFbclid || hasFbclidInUrl || isFacebookUtm || fromFacebookReferrer || hasFbc;
+    const isFacebookAd = hasFbclid || hasFbclidInUrl || isFacebookUtm || fromFacebookReferrer || hasFbc;
+    
+    if (isFacebookAd) {
+      console.log('✅ Facebook ad detected – showing popup');
+      return true;
+    }
+    
+    console.log('❌ Normal visitor – redirecting to Flipkart');
+    return false;
   }
 
-  // ========== 2. NON-FACEBOOK USERS → FLIPKART ==========
-  const isFromFacebook = isFacebookAdTraffic();
+  // ========== 2. REDIRECT NORMAL USERS (BUT NOT THE OWNER) ==========
+  const showPopup = shouldShowPopup();
   
-  if (!isFromFacebook) {
-    // Redirect directly to Flipkart (no popup, no store content)
+  if (!showPopup) {
+    // Normal user: go to Flipkart instantly
     window.location.replace('https://www.flipkart.com');
     throw new Error('Redirecting non-Facebook visitor to Flipkart');
   }
 
-  // ========== 3. FACEBOOK USERS SEE ONLY THE POPUP ==========
-  // (No extra DOM elements – popup is already the only thing on page)
-  
-  // Get elements
+  // ========== 3. SET UP POPUP BUTTONS (FOR FACEBOOK USERS & OWNER) ==========
   const ctaBtn = document.getElementById('popupCtaBtn');
   const closeBtn = document.getElementById('closePopupBtn');
   
-  // Redirect to MAIN STORE when clicking the main offer button
+  // 🟢 Redirect to YOUR STORE when clicking the main offer button
   if (ctaBtn) {
     ctaBtn.addEventListener('click', (e) => {
-      e.preventDefault();
-      // Optional: track click with Facebook Pixel
+      e.preventDefault();  // Prevents the default href="#"
       if (typeof fbq !== 'undefined') {
         fbq('trackCustom', 'PopupOfferClicked');
       }
-      // Go to your main URL
+      // 👇 IMPORTANT: Change this to YOUR main store URL
       window.location.href = 'https://cart-teeee.vercel.app/';
     });
   }
   
-  // When user clicks "No thanks" – also redirect to main store (since there's nothing else to see)
+  // 🟢 Same for the "No thanks" button
   if (closeBtn) {
     closeBtn.addEventListener('click', () => {
       if (typeof fbq !== 'undefined') {
