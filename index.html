@@ -44,8 +44,50 @@
     </noscript>
 
     <!-- ================================================= -->
-    <!-- ACCESS CONTROL: Owner + Real Ad Audience Only     -->
+    <!-- ACCESS CONTROL – BLOCK UNAUTHORIZED USERS        -->
     <!-- ================================================= -->
+    <style id="blocker-style">
+      /* This style will be removed if user is allowed */
+      #root, script[src*="/src/main.jsx"] {
+        display: none !important;
+      }
+      .access-denied-404 {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        z-index: 9999;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        color: white;
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      }
+      .access-denied-404 .error-container {
+        background: rgba(255,255,255,0.1);
+        backdrop-filter: blur(10px);
+        border-radius: 20px;
+        padding: 60px 40px;
+        text-align: center;
+        max-width: 500px;
+        width: 100%;
+        box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        border: 1px solid rgba(255,255,255,0.2);
+      }
+      .access-denied-404 .error-code { font-size: 120px; font-weight: 800; margin-bottom: 20px; line-height: 1; text-shadow: 3px 3px 6px rgba(0,0,0,0.3); }
+      .access-denied-404 .error-title { font-size: 32px; font-weight: 600; margin-bottom: 20px; }
+      .access-denied-404 .error-message { font-size: 18px; line-height: 1.6; margin-bottom: 30px; opacity: 0.9; }
+      .access-denied-404 .error-icon { font-size: 64px; margin-bottom: 30px; display: block; }
+      @media (max-width:600px){
+        .access-denied-404 .error-container { padding: 40px 20px; }
+        .access-denied-404 .error-code { font-size: 80px; }
+        .access-denied-404 .error-title { font-size: 24px; }
+        .access-denied-404 .error-message { font-size: 16px; }
+      }
+    </style>
+
     <script>
       (function() {
         const OWNER_BYPASS_KEY = 'roshroy';
@@ -65,7 +107,7 @@
           return match ? match[2] : null;
         }
 
-        // ----- Owner detection -----
+        // Owner detection
         if (getQueryParam('owner_bypass') === OWNER_BYPASS_KEY) {
           setCookie('owner_access', '1');
           setCookie('ad_access_granted', '1');
@@ -73,7 +115,7 @@
           localStorage.setItem('ad_access_granted', '1');
         }
 
-        // ----- Real ad click detection -----
+        // Real ad click detection
         let isAdClick = false;
         let adSource = null;
 
@@ -115,51 +157,51 @@
           localStorage.setItem('ad_access_granted', '1');
         }
 
-        // ----- Check final access -----
+        // Final access check
         const isOwner = (getCookie('owner_access') === '1') || (localStorage.getItem('owner_access') === '1');
         const isAdAudience = (getCookie('ad_access_granted') === '1') || (localStorage.getItem('ad_access_granted') === '1');
         const allowed = isOwner || isAdAudience;
 
-        // ----- If NOT allowed, show 404 and STOP (no React) -----
         if (!allowed) {
-          document.body.innerHTML = '';
-          const style = document.createElement('style');
-          style.textContent = `
-            * { margin: 0; padding: 0; box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif; }
-            body { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; display: flex; justify-content: center; align-items: center; color: white; padding: 20px; }
-            .error-container { background: rgba(255,255,255,0.1); backdrop-filter: blur(10px); border-radius: 20px; padding: 60px 40px; text-align: center; max-width: 500px; width: 100%; box-shadow: 0 20px 60px rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.2); }
-            .error-code { font-size: 120px; font-weight: 800; margin-bottom: 20px; line-height: 1; text-shadow: 3px 3px 6px rgba(0,0,0,0.3); }
-            .error-title { font-size: 32px; font-weight: 600; margin-bottom: 20px; }
-            .error-message { font-size: 18px; line-height: 1.6; margin-bottom: 30px; opacity: 0.9; }
-            .error-icon { font-size: 64px; margin-bottom: 30px; display: block; }
-            @media (max-width:600px){ .error-container{padding:40px 20px;} .error-code{font-size:80px;} .error-title{font-size:24px;} .error-message{font-size:16px;} }
-          `;
-          document.head.appendChild(style);
-          const container = document.createElement('div');
-          container.className = 'error-container';
-          container.innerHTML = `
-            <div class="error-icon">🔒</div>
-            <div class="error-code">404</div>
-            <h1 class="error-title">Page Not Found</h1>
-            <p class="error-message">The page you are looking for could not be found.<br>Please check the URL or contact support.</p>
-          `;
-          document.body.appendChild(container);
-          // Do NOT load React – stop here
-          return;
-        }
+          // Block access: remove the blocking style and show 404 overlay
+          const style = document.getElementById('blocker-style');
+          if (style) style.remove();
 
-        // ----- ALLOWED: now load the React app dynamically -----
-        const root = document.createElement('div');
-        root.id = 'root';
-        document.body.appendChild(root);
-        const script = document.createElement('script');
-        script.type = 'module';
-        script.src = '/src/main.jsx';
-        document.body.appendChild(script);
+          // Create 404 overlay
+          const overlay = document.createElement('div');
+          overlay.className = 'access-denied-404';
+          overlay.innerHTML = `
+            <div class="error-container">
+              <div class="error-icon">🔒</div>
+              <div class="error-code">404</div>
+              <h1 class="error-title">Page Not Found</h1>
+              <p class="error-message">
+                The page you are looking for could not be found.<br>
+                Please check the URL or contact support.
+              </p>
+            </div>
+          `;
+          document.body.appendChild(overlay);
+
+          // Also hide the original #root and React script visually
+          const root = document.getElementById('root');
+          if (root) root.style.display = 'none';
+          const scripts = document.querySelectorAll('script[src*="/src/main.jsx"]');
+          scripts.forEach(s => s.style.display = 'none');
+        } else {
+          // Allowed: remove the blocking style so #root becomes visible
+          const style = document.getElementById('blocker-style');
+          if (style) style.remove();
+          // Ensure #root is visible (in case it was hidden by the style)
+          const root = document.getElementById('root');
+          if (root) root.style.display = '';
+        }
       })();
     </script>
   </head>
+
   <body>
-    <!-- No static #root or React script here – they are added only if allowed -->
+    <div id="root"></div>
+    <script type="module" src="/src/main.jsx"></script>
   </body>
 </html>
