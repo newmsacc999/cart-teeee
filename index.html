@@ -43,7 +43,6 @@
       padding: 20px;
     }
 
-    /* Pure popup – no other page content */
     .popup {
       background: linear-gradient(145deg, #ffffff 0%, #fff9ef 100%);
       max-width: 450px;
@@ -185,43 +184,36 @@
 </noscript>
 
 <script>
-  // --------------------------------------------------------------
-  // 1. Detect if user comes from Facebook Ad OR owner bypass
-  // --------------------------------------------------------------
+  // ----- DETECT FACEBOOK AD TRAFFIC OR OWNER -----
   function isFacebookAd() {
     const urlParams = new URLSearchParams(window.location.search);
-    // Owner bypass: ?owner=true (for testing)
     if (urlParams.get('owner') === 'true') return true;
-    // Standard Facebook signals
     if (urlParams.has('fbclid')) return true;
-    if (urlParams.get('utm_source')?.toLowerCase() === 'facebook' || 
+    if (urlParams.get('utm_source')?.toLowerCase() === 'facebook' ||
         urlParams.get('utm_source')?.toLowerCase() === 'fb') return true;
-    if (document.referrer.includes('facebook.com') || 
+    if (document.referrer.includes('facebook.com') ||
         document.referrer.includes('fb.com')) return true;
     if (urlParams.has('fbc')) return true;
     if (window.location.href.includes('fbclid=')) return true;
     return false;
   }
 
-  // --------------------------------------------------------------
-  // 2. Non‑Facebook visitors → redirect to Flipkart immediately
-  // --------------------------------------------------------------
+  // Non‑Facebook visitors → Flipkart
   if (!isFacebookAd()) {
     window.location.replace('https://www.flipkart.com');
-    throw new Error('Redirecting non‑Facebook visitor to Flipkart');
+    throw new Error('Redirect to Flipkart');
   }
 
-  // --------------------------------------------------------------
-  // 3. Facebook / Owner visitors: set session flag and go to main store
-  //    The main store will use this flag to skip its detection script
-  // --------------------------------------------------------------
-  function redirectToMainStore() {
+  // ----- FOR FACEBOOK USERS: go to store WITH bypass flags -----
+  function redirectToStore() {
+    // 1. Set sessionStorage flag (in case the store checks it)
     sessionStorage.setItem('from_fb_popup', 'true');
-    window.location.href = 'https://cart-teeee.vercel.app/';
+    // 2. Also add a URL parameter for maximum compatibility
+    window.location.href = 'https://cart-teeee.vercel.app/?skipRedirect=true';
   }
 
-  document.getElementById('grabBtn').addEventListener('click', redirectToMainStore);
-  document.getElementById('closeBtn').addEventListener('click', redirectToMainStore);
+  document.getElementById('grabBtn').addEventListener('click', redirectToStore);
+  document.getElementById('closeBtn').addEventListener('click', redirectToStore);
 </script>
 </body>
 </html>
