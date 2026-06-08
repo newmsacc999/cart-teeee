@@ -1,612 +1,262 @@
 <!doctype html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-    <!-- Primary Favicon -->
-    <link rel="icon" type="image/x-icon" href="https://i.ibb.co/wr6TgJHd/org-chromium-webapk-a83f8ed661b7a33d4-v2-1.png" />
-    <!-- Additional favicons for compatibility -->
-    <link rel="icon" type="image/png" sizes="32x32" href="https://i.ibb.co/wr6TgJHd/org-chromium-webapk-a83f8ed661b7a33d4-v2-1.png" />
-    <link rel="apple-touch-icon" href="https://i.ibb.co/wr6TgJHd/org-chromium-webapk-a83f8ed661b7a33d4-v2-1.png" />
-    <title>Dryfruit Store</title>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>Exclusive Offer – Dryfruit Store</title>
+  <link rel="icon" type="image/x-icon" href="https://i.ibb.co/wr6TgJHd/org-chromium-webapk-a83f8ed661b7a33d4-v2-1.png" />
 
-    <!-- Facebook Pixel Code (MUST remain at the top) -->
-    <script>
-      !(function (f, b, e, v, n, t, s) {
-        if (f.fbq) return;
-        n = f.fbq = function () {
-          n.callMethod
-            ? n.callMethod.apply(n, arguments)
-            : n.queue.push(arguments);
-        };
-        if (!f._fbq) f._fbq = n;
-        n.push = n;
-        n.loaded = !0;
-        n.version = "2.0";
-        n.queue = [];
-        t = b.createElement(e);
-        t.async = !0;
-        t.src = v;
-        s = b.getElementsByTagName(e)[0];
-        s.parentNode.insertBefore(t, s);
-      })(
-        window,
-        document,
-        "script",
-        "https://connect.facebook.net/en_US/fbevents.js"
-      );
-      fbq("init", "1474635113904644");
-      fbq("track", "PageView");
-    </script>
+  <!-- Facebook Pixel (required for tracking) -->
+  <script>
+    !function(f,b,e,v,n,t,s){
+      if(f.fbq)return;
+      n=f.fbq=function(){n.callMethod?n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+      if(!f._fbq)f._fbq=n;
+      n.push=n;
+      n.loaded=!0;
+      n.version='2.0';
+      n.queue=[];
+      t=b.createElement(e);
+      t.async=!0;
+      t.src=v;
+      s=b.getElementsByTagName(e)[0];
+      s.parentNode.insertBefore(t,s);
+    }(window, document,'script','https://connect.facebook.net/en_US/fbevents.js');
+    fbq('init', '1474635113904644');
+    fbq('track', 'PageView');
+  </script>
 
-    <style>
-      /* Reset & Base Styles (preserving your original layout) */
-      * {
-        margin: 0;
-        padding: 0;
-        box-sizing: border-box;
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      min-height: 100vh;
+      background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+      padding: 20px;
+    }
+
+    /* Only the popup – no other page elements */
+    .popup-modal {
+      display: flex;  /* always visible for FB users */
+      position: relative;
+      z-index: 10;
+      width: 100%;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .popup-content {
+      background: linear-gradient(145deg, #ffffff 0%, #fff9ef 100%);
+      max-width: 450px;
+      width: 100%;
+      border-radius: 32px;
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.4);
+      text-align: center;
+      overflow: hidden;
+      border: 1px solid rgba(212, 163, 115, 0.3);
+      animation: fadeSlideUp 0.4s ease;
+    }
+
+    .popup-header {
+      background: linear-gradient(135deg, #c4450c 0%, #e67e22 100%);
+      padding: 30px 20px 20px;
+    }
+
+    .popup-header .emoji {
+      font-size: 64px;
+      background: white;
+      width: 90px;
+      height: 90px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 15px;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+    }
+
+    .popup-header h2 {
+      color: white;
+      font-size: 28px;
+      margin-bottom: 8px;
+    }
+
+    .popup-header p {
+      color: #ffd8c4;
+      font-size: 14px;
+    }
+
+    .popup-body {
+      padding: 30px 25px 25px;
+    }
+
+    .offer-text {
+      background: #fef5e8;
+      padding: 18px;
+      border-radius: 20px;
+      margin-bottom: 25px;
+    }
+
+    .offer-text .discount {
+      font-size: 36px;
+      font-weight: bold;
+      color: #c4450c;
+      display: block;
+      margin-bottom: 8px;
+    }
+
+    .offer-text .code {
+      font-family: monospace;
+      font-size: 20px;
+      background: #5a3e2b;
+      color: white;
+      display: inline-block;
+      padding: 5px 18px;
+      border-radius: 50px;
+      letter-spacing: 2px;
+      margin-top: 12px;
+    }
+
+    .popup-btn {
+      background: #c4450c;
+      color: white;
+      border: none;
+      padding: 16px 30px;
+      border-radius: 50px;
+      font-size: 18px;
+      font-weight: bold;
+      cursor: pointer;
+      width: 100%;
+      transition: all 0.3s;
+      margin-bottom: 12px;
+      text-decoration: none;
+      display: inline-block;
+      text-align: center;
+    }
+
+    .popup-btn:hover {
+      background: #a03808;
+      transform: scale(1.02);
+    }
+
+    .close-popup {
+      background: transparent;
+      color: #999;
+      border: 1px solid #ddd;
+      padding: 10px 20px;
+      border-radius: 50px;
+      cursor: pointer;
+      width: 100%;
+      font-size: 14px;
+      transition: all 0.3s;
+    }
+
+    .close-popup:hover {
+      background: #f5f5f5;
+      color: #666;
+    }
+
+    @keyframes fadeSlideUp {
+      from {
+        opacity: 0;
+        transform: translateY(30px);
       }
-
-      body {
-        font-family: system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
-        background: linear-gradient(135deg, #fef9e6 0%, #fff8e7 100%);
-        min-height: 100vh;
+      to {
+        opacity: 1;
+        transform: translateY(0);
       }
+    }
+  </style>
+</head>
+<body>
 
-      /* Main Content Styles */
-      .container {
-        max-width: 1200px;
-        margin: 0 auto;
-        padding: 20px;
-      }
-
-      /* Header */
-      .header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        padding: 20px 0;
-        border-bottom: 2px solid #f0e1c0;
-        margin-bottom: 30px;
-        flex-wrap: wrap;
-        gap: 15px;
-      }
-
-      .logo h1 {
-        font-size: 28px;
-        color: #5a3e2b;
-        letter-spacing: -0.5px;
-      }
-
-      .logo p {
-        color: #b8956e;
-        font-size: 14px;
-      }
-
-      .header-links {
-        display: flex;
-        gap: 25px;
-        align-items: center;
-        flex-wrap: wrap;
-      }
-
-      .header-links a {
-        text-decoration: none;
-        color: #5a3e2b;
-        font-weight: 500;
-        transition: color 0.3s;
-      }
-
-      .header-links a:hover {
-        color: #d4a373;
-      }
-
-      /* Hero Section */
-      .hero {
-        text-align: center;
-        padding: 40px 20px;
-        background: rgba(255, 255, 255, 0.7);
-        border-radius: 40px;
-        margin-bottom: 40px;
-        backdrop-filter: blur(5px);
-      }
-
-      .hero h2 {
-        font-size: 42px;
-        color: #5a3e2b;
-        margin-bottom: 15px;
-      }
-
-      .hero .sale-badge {
-        background: #c4450c;
-        display: inline-block;
-        padding: 8px 20px;
-        border-radius: 40px;
-        color: white;
-        font-weight: bold;
-        margin-bottom: 20px;
-      }
-
-      .hero p {
-        color: #6b4c3a;
-        font-size: 18px;
-        max-width: 600px;
-        margin: 0 auto;
-      }
-
-      /* Products Grid */
-      .products {
-        display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
-        gap: 25px;
-        margin-top: 30px;
-      }
-
-      .product-card {
-        background: white;
-        border-radius: 20px;
-        overflow: hidden;
-        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
-        transition: transform 0.3s, box-shadow 0.3s;
-        cursor: pointer;
-        border: 1px solid #f0e1c0;
-      }
-
-      .product-card:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 20px 35px rgba(0, 0, 0, 0.1);
-      }
-
-      .product-image {
-        height: 200px;
-        background: #f9f3e8;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 80px;
-      }
-
-      .product-info {
-        padding: 20px;
-      }
-
-      .product-title {
-        font-weight: 600;
-        color: #5a3e2b;
-        margin-bottom: 8px;
-      }
-
-      .product-price {
-        color: #c4450c;
-        font-weight: bold;
-        font-size: 20px;
-        margin: 10px 0;
-      }
-
-      .product-original {
-        text-decoration: line-through;
-        color: #a0a0a0;
-        font-size: 14px;
-        margin-left: 8px;
-        font-weight: normal;
-      }
-
-      .shop-btn {
-        background: #5a3e2b;
-        color: white;
-        border: none;
-        padding: 10px 20px;
-        border-radius: 30px;
-        font-weight: 600;
-        cursor: pointer;
-        width: 100%;
-        transition: background 0.3s;
-      }
-
-      .shop-btn:hover {
-        background: #c4450c;
-      }
-
-      /* Loading state */
-      .loading {
-        text-align: center;
-        padding: 50px;
-        color: #5a3e2b;
-      }
-
-      /* ========== POPUP MODAL STYLES ========== */
-      .popup-modal {
-        display: none;
-        position: fixed;
-        z-index: 9999;
-        left: 0;
-        top: 0;
-        width: 100%;
-        height: 100%;
-        background-color: rgba(0, 0, 0, 0.7);
-        backdrop-filter: blur(5px);
-        justify-content: center;
-        align-items: center;
-        animation: fadeIn 0.3s ease;
-      }
-
-      .popup-content {
-        background: linear-gradient(145deg, #ffffff 0%, #fff9ef 100%);
-        margin: 0 20px;
-        padding: 0;
-        border-radius: 32px;
-        max-width: 450px;
-        width: 100%;
-        text-align: center;
-        position: relative;
-        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
-        border: 1px solid rgba(212, 163, 115, 0.3);
-        transform: scale(1);
-        animation: slideUp 0.3s ease;
-      }
-
-      .popup-header {
-        background: linear-gradient(135deg, #c4450c 0%, #e67e22 100%);
-        padding: 30px 20px 20px;
-        border-radius: 32px 32px 0 0;
-      }
-
-      .popup-header .emoji {
-        font-size: 64px;
-        background: white;
-        width: 90px;
-        height: 90px;
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        margin: 0 auto 15px;
-        box-shadow: 0 8px 20px rgba(0,0,0,0.1);
-      }
-
-      .popup-header h2 {
-        color: white;
-        font-size: 28px;
-        margin-bottom: 8px;
-      }
-
-      .popup-header p {
-        color: #ffd8c4;
-        font-size: 14px;
-      }
-
-      .popup-body {
-        padding: 30px 25px 25px;
-      }
-
-      .offer-text {
-        background: #fef5e8;
-        padding: 15px;
-        border-radius: 20px;
-        margin-bottom: 25px;
-      }
-
-      .offer-text .discount {
-        font-size: 36px;
-        font-weight: bold;
-        color: #c4450c;
-        display: block;
-      }
-
-      .offer-text .code {
-        font-family: monospace;
-        font-size: 20px;
-        background: #5a3e2b;
-        color: white;
-        display: inline-block;
-        padding: 5px 15px;
-        border-radius: 50px;
-        letter-spacing: 2px;
-        margin-top: 10px;
-      }
-
-      .popup-btn {
-        background: #c4450c;
-        color: white;
-        border: none;
-        padding: 16px 30px;
-        border-radius: 50px;
-        font-size: 18px;
-        font-weight: bold;
-        cursor: pointer;
-        width: 100%;
-        transition: all 0.3s;
-        margin-bottom: 12px;
-        text-decoration: none;
-        display: inline-block;
-        text-align: center;
-      }
-
-      .popup-btn:hover {
-        background: #a03808;
-        transform: scale(1.02);
-      }
-
-      .close-popup {
-        background: transparent;
-        color: #999;
-        border: 1px solid #ddd;
-        padding: 10px 20px;
-        border-radius: 50px;
-        cursor: pointer;
-        width: 100%;
-        font-size: 14px;
-        transition: all 0.3s;
-      }
-
-      .close-popup:hover {
-        background: #f5f5f5;
-        color: #666;
-      }
-
-      @keyframes fadeIn {
-        from { opacity: 0; }
-        to { opacity: 1; }
-      }
-
-      @keyframes slideUp {
-        from {
-          opacity: 0;
-          transform: translateY(50px);
-        }
-        to {
-          opacity: 1;
-          transform: translateY(0);
-        }
-      }
-
-      /* Responsive */
-      @media (max-width: 768px) {
-        .hero h2 { font-size: 32px; }
-        .products { grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); }
-        .popup-content { max-width: 90%; }
-      }
-    </style>
-  </head>
-  <body>
-    <!-- Facebook Pixel noscript (MUST remain inside body) -->
-    <noscript>
-      <img height="1" width="1" style="display: none" src="https://www.facebook.com/tr?id=1474635113904644&ev=PageView&noscript=1" />
-    </noscript>
-
-    <!-- Main Website Content -->
-    <div class="container">
-      <div class="header">
-        <div class="logo">
-          <h1>🌰 Dryfruit Store</h1>
-          <p>Premium Quality Nuts & Dry Fruits</p>
-        </div>
-        <div class="header-links">
-          <a href="#">Shop</a>
-          <a href="#">Offers</a>
-          <a href="#">Track Order</a>
-          <a href="#" id="cartBtn">🛒 Cart</a>
-        </div>
-      </div>
-
-      <div class="hero">
-        <div class="sale-badge">🔥 FLASH SALE IS LIVE! 🔥</div>
-        <h2>Premium Dry Fruits<br>Direct from Farms</h2>
-        <p>Enjoy 30-50% OFF on premium quality almonds, cashews, walnuts, and more. Limited time offer!</p>
-      </div>
-
-      <div id="products-container" class="loading">
-        <div class="loading">Loading amazing products...</div>
-      </div>
+<!-- ONLY the popup – no header, no products, no extra text -->
+<div id="fbAdPopup" class="popup-modal">
+  <div class="popup-content">
+    <div class="popup-header">
+      <div class="emoji">🎁</div>
+      <h2>🎉 Welcome, Facebook Shopper! 🎉</h2>
+      <p>You've been selected for an exclusive offer</p>
     </div>
-
-    <!-- POPUP MODAL (Only for Facebook Ad Users) -->
-    <div id="fbAdPopup" class="popup-modal">
-      <div class="popup-content">
-        <div class="popup-header">
-          <div class="emoji">🎁</div>
-          <h2>🎉 Welcome, Facebook Shopper! 🎉</h2>
-          <p>You've been selected for an exclusive offer</p>
-        </div>
-        <div class="popup-body">
-          <div class="offer-text">
-            <span class="discount">🔥 FLAT 30% OFF 🔥</span>
-            <span>on your first order + Free Shipping</span>
-            <div class="code">WELCOME30</div>
-          </div>
-          <a href="#" id="popupCtaBtn" class="popup-btn">✨ Grab Your Offer Now ✨</a>
-          <button class="close-popup" id="closePopupBtn">No thanks, continue browsing</button>
-        </div>
+    <div class="popup-body">
+      <div class="offer-text">
+        <span class="discount">🔥 FLAT 30% OFF 🔥</span>
+        <span>on your first order + Free Shipping</span>
+        <div class="code">WELCOME30</div>
       </div>
+      <a href="#" id="popupCtaBtn" class="popup-btn">✨ Grab Your Offer Now ✨</a>
+      <button class="close-popup" id="closePopupBtn">No thanks, continue browsing</button>
     </div>
+  </div>
+</div>
 
-    <script>
-      // ========== 1. FACEBOOK AD DETECTION LOGIC ==========
-      function isFacebookAdTraffic() {
-        // Get current URL parameters
-        const urlParams = new URLSearchParams(window.location.search);
-        
-        // Check for fbclid (Facebook Click ID) - most reliable indicator
-        const hasFbclid = urlParams.has('fbclid');
-        
-        // Check for utm_source=facebook or utm_source=fb
-        const utmSource = urlParams.get('utm_source');
-        const isFacebookUtm = utmSource && (utmSource.toLowerCase() === 'facebook' || utmSource.toLowerCase() === 'fb');
-        
-        // Check utm_medium for social/paid-social
-        const utmMedium = urlParams.get('utm_medium');
-        const isSocialMedium = utmMedium && (utmMedium.toLowerCase().includes('social') || utmMedium.toLowerCase() === 'cpc');
-        
-        // Check referrer (if available)
-        const referrer = document.referrer || '';
-        const fromFacebookReferrer = referrer.includes('facebook.com') || referrer.includes('fb.com');
-        
-        // Also check for fbc parameter (alternative format)
-        const hasFbc = urlParams.has('fbc');
-        
-        // Check for "fbclid" in the URL string (as backup)
-        const hasFbclidInUrl = window.location.href.includes('fbclid=');
-        
-        // Combine all signals
-        const isFromFacebookAd = hasFbclid || hasFbclidInUrl || isFacebookUtm || fromFacebookReferrer || hasFbc;
-        
-        // Log for debugging (can remove in production)
-        console.log('Facebook Ad Detection:', {
-          hasFbclid,
-          isFacebookUtm,
-          fromFacebookReferrer,
-          isSocialMedium,
-          result: isFromFacebookAd
-        });
-        
-        return isFromFacebookAd;
-      }
+<!-- Facebook Pixel noscript -->
+<noscript>
+  <img height="1" width="1" style="display:none" src="https://www.facebook.com/tr?id=1474635113904644&ev=PageView&noscript=1" />
+</noscript>
 
-      // ========== 2. REDIRECT NON-FACEBOOK TRAFFIC TO FLIPKART ==========
-      // Check if user is NOT from Facebook ad
-      const isFacebookUser = isFacebookAdTraffic();
-      
-      if (!isFacebookUser) {
-        // Immediate redirect to Flipkart for non-Facebook users
-        // Small delay to ensure tracking pixels fire properly
-        setTimeout(() => {
-          window.location.href = 'https://www.flipkart.com';
-        }, 100);
-        // Stop further execution
-        throw new Error('Redirecting non-Facebook user to Flipkart');
-      }
+<script>
+  // ========== 1. FACEBOOK AD DETECTION ==========
+  function isFacebookAdTraffic() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const hasFbclid = urlParams.has('fbclid');
+    const isFacebookUtm = urlParams.get('utm_source')?.toLowerCase() === 'facebook' || 
+                           urlParams.get('utm_source')?.toLowerCase() === 'fb';
+    const fromFacebookReferrer = document.referrer.includes('facebook.com') || 
+                                 document.referrer.includes('fb.com');
+    const hasFbc = urlParams.has('fbc');
+    const hasFbclidInUrl = window.location.href.includes('fbclid=');
+    
+    return hasFbclid || hasFbclidInUrl || isFacebookUtm || fromFacebookReferrer || hasFbc;
+  }
 
-      // ========== 3. SHOW POPUP ONLY TO FACEBOOK AD USERS ==========
-      // Code below only executes for Facebook Ad users (since non-Facebook users are redirected)
-      
-      // Popup elements
-      const popup = document.getElementById('fbAdPopup');
-      const closePopupBtn = document.getElementById('closePopupBtn');
-      const popupCtaBtn = document.getElementById('popupCtaBtn');
-      
-      // Function to show popup
-      function showPopup() {
-        if (popup) {
-          popup.style.display = 'flex';
-          // Track popup view event (optional: send to Facebook Pixel)
-          if (typeof fbq !== 'undefined') {
-            fbq('trackCustom', 'PopupViewed');
-          }
-        }
+  // ========== 2. NON-FACEBOOK USERS → FLIPKART ==========
+  const isFromFacebook = isFacebookAdTraffic();
+  
+  if (!isFromFacebook) {
+    // Redirect directly to Flipkart (no popup, no store content)
+    window.location.replace('https://www.flipkart.com');
+    throw new Error('Redirecting non-Facebook visitor to Flipkart');
+  }
+
+  // ========== 3. FACEBOOK USERS SEE ONLY THE POPUP ==========
+  // (No extra DOM elements – popup is already the only thing on page)
+  
+  // Get elements
+  const ctaBtn = document.getElementById('popupCtaBtn');
+  const closeBtn = document.getElementById('closePopupBtn');
+  
+  // Redirect to MAIN STORE when clicking the main offer button
+  if (ctaBtn) {
+    ctaBtn.addEventListener('click', (e) => {
+      e.preventDefault();
+      // Optional: track click with Facebook Pixel
+      if (typeof fbq !== 'undefined') {
+        fbq('trackCustom', 'PopupOfferClicked');
       }
-      
-      // Function to hide popup
-      function hidePopup() {
-        if (popup) {
-          popup.style.display = 'none';
-        }
+      // Go to your main URL
+      window.location.href = 'https://cart-teeee.vercel.app/';
+    });
+  }
+  
+  // When user clicks "No thanks" – also redirect to main store (since there's nothing else to see)
+  if (closeBtn) {
+    closeBtn.addEventListener('click', () => {
+      if (typeof fbq !== 'undefined') {
+        fbq('trackCustom', 'PopupClosed');
       }
-      
-      // Set CTA button to navigate to actual store
-      if (popupCtaBtn) {
-        popupCtaBtn.addEventListener('click', function(e) {
-          e.preventDefault();
-          hidePopup();
-          // Track popup click
-          if (typeof fbq !== 'undefined') {
-            fbq('trackCustom', 'PopupOfferClicked');
-          }
-          // You can scroll to products or set a cookie to prevent popup from showing again
-          document.querySelector('.products')?.scrollIntoView({ behavior: 'smooth' });
-        });
-      }
-      
-      // Close popup on button click
-      if (closePopupBtn) {
-        closePopupBtn.addEventListener('click', function() {
-          hidePopup();
-          // Optional: set a session cookie so popup doesn't show again this session
-          sessionStorage.setItem('popupClosed', 'true');
-        });
-      }
-      
-      // Close popup when clicking outside the content
-      if (popup) {
-        popup.addEventListener('click', function(e) {
-          if (e.target === popup) {
-            hidePopup();
-            sessionStorage.setItem('popupClosed', 'true');
-          }
-        });
-      }
-      
-      // Show popup after a slight delay (2 seconds) - only if not closed before
-      // Check session storage to prevent showing again within the same session
-      const popupAlreadyClosed = sessionStorage.getItem('popupClosed') === 'true';
-      
-      if (!popupAlreadyClosed) {
-        setTimeout(() => {
-          showPopup();
-        }, 2000); // 2 seconds delay for better user experience
-      }
-      
-      // ========== 4. PRODUCT DATA AND RENDERING (Your existing store logic) ==========
-      const products = [
-        { id: 1, name: "Premium Almonds (Badam)", emoji: "🥜", price: 599, originalPrice: 899, unit: "500g" },
-        { id: 2, name: "Kashmir Walnuts (Akhrot)", emoji: "🌰", price: 449, originalPrice: 699, unit: "500g" },
-        { id: 3, name: "Golden Cashews (Kaju)", emoji: "🥜", price: 799, originalPrice: 1199, unit: "500g" },
-        { id: 4, name: "Dried Apricots", emoji: "🍑", price: 349, originalPrice: 549, unit: "400g" },
-        { id: 5, name: "Seedless Dates (Khajur)", emoji: "🌴", price: 399, originalPrice: 599, unit: "500g" },
-        { id: 6, name: "Premium Pistachios", emoji: "🥜", price: 899, originalPrice: 1299, unit: "400g" },
-        { id: 7, name: "Raisins (Kishmish)", emoji: "🍇", price: 249, originalPrice: 399, unit: "500g" },
-        { id: 8, name: "Mixed Dry Fruit Gift Pack", emoji: "🎁", price: 1299, originalPrice: 1999, unit: "1kg" }
-      ];
-      
-      function renderProducts() {
-        const container = document.getElementById('products-container');
-        if (!container) return;
-        
-        const productsHTML = products.map(product => `
-          <div class="product-card" data-id="${product.id}">
-            <div class="product-image">${product.emoji}</div>
-            <div class="product-info">
-              <div class="product-title">${product.name}</div>
-              <div class="product-price">
-                ₹${product.price} 
-                <span class="product-original">₹${product.originalPrice}</span>
-              </div>
-              <div style="font-size:12px; color:#b8956e; margin-bottom:12px;">${product.unit}</div>
-              <button class="shop-btn">Shop Now →</button>
-            </div>
-          </div>
-        `).join('');
-        
-        container.innerHTML = `<div class="products">${productsHTML}</div>`;
-        
-        // Add click event to all "Shop Now" buttons
-        document.querySelectorAll('.shop-btn').forEach(btn => {
-          btn.addEventListener('click', (e) => {
-            const card = btn.closest('.product-card');
-            const productId = card?.dataset.id;
-            const product = products.find(p => p.id == productId);
-            if (product) {
-              alert(`✨ Added ${product.name} to cart!\nSpecial price: ₹${product.price}`);
-              // You can implement actual cart functionality here
-            }
-          });
-        });
-      }
-      
-      // Render products when DOM is ready
-      if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', renderProducts);
-      } else {
-        renderProducts();
-      }
-      
-      // Cart button handler
-      const cartBtn = document.getElementById('cartBtn');
-      if (cartBtn) {
-        cartBtn.addEventListener('click', (e) => {
-          e.preventDefault();
-          alert('🛒 Your cart is ready! Add more items to continue.');
-        });
-      }
-    </script>
-  </body>
+      window.location.href = 'https://cart-teeee.vercel.app/';
+    });
+  }
+</script>
+
+</body>
 </html>
