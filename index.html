@@ -48,198 +48,118 @@
     <!-- ================================================= -->
     <script>
       (function() {
-        // ---------- CONFIGURATION ----------
         const OWNER_BYPASS_KEY = 'roshroy';
 
-        // Helper: get query parameter
         function getQueryParam(param) {
-          const urlParams = new URLSearchParams(window.location.search);
-          return urlParams.get(param);
+          return new URLSearchParams(window.location.search).get(param);
         }
 
-        // Helper: set cookie (30 days, root path)
         function setCookie(name, value, days = 30) {
           const expires = new Date();
           expires.setTime(expires.getTime() + days * 24 * 60 * 60 * 1000);
           document.cookie = `${name}=${value}; expires=${expires.toUTCString()}; path=/`;
         }
 
-        // Helper: get cookie value
         function getCookie(name) {
           const match = document.cookie.match(new RegExp('(^| )' + name + '=([^;]+)'));
           return match ? match[2] : null;
         }
 
-        // ---------- 1. OWNER DETECTION ----------
-        const bypassParam = getQueryParam('owner_bypass');
-        if (bypassParam === OWNER_BYPASS_KEY) {
+        // ----- Owner detection -----
+        if (getQueryParam('owner_bypass') === OWNER_BYPASS_KEY) {
           setCookie('owner_access', '1');
           setCookie('ad_access_granted', '1');
           localStorage.setItem('owner_access', '1');
           localStorage.setItem('ad_access_granted', '1');
         }
 
-        // ---------- 2. REAL AD CLICK DETECTION (customers) ----------
+        // ----- Real ad click detection -----
         let isAdClick = false;
         let adSource = null;
 
-        // Check for Facebook fbclid
         const fbclid = getQueryParam('fbclid');
         if (fbclid && fbclid.length > 20 && /^[A-Za-z0-9_-]+$/.test(fbclid)) {
           isAdClick = true;
           adSource = 'facebook';
         }
 
-        // Check for Google gclid
         const gclid = getQueryParam('gclid');
         if (!isAdClick && gclid && gclid.length > 15) {
           isAdClick = true;
           adSource = 'google';
         }
 
-        // Check for TikTok ttclid
         const ttclid = getQueryParam('ttclid');
         if (!isAdClick && ttclid && ttclid.length > 0) {
           isAdClick = true;
           adSource = 'tiktok';
         }
 
-        // Check referrer for ad platforms
         const referrer = document.referrer.toLowerCase();
-        const adPlatforms = [
-          'l.facebook.com', 'lm.facebook.com', 'm.facebook.com',
-          'facebook.com/l.php', 'messenger.com', 't.co',
-          'google.com/url', 'tiktok.com'
-        ];
         if (!isAdClick && referrer) {
-          for (let platform of adPlatforms) {
-            if (referrer.includes(platform)) {
-              isAdClick = true;
-              if (platform.includes('facebook')) adSource = 'facebook';
-              else if (platform.includes('google')) adSource = 'google';
-              else if (platform.includes('tiktok')) adSource = 'tiktok';
-              break;
-            }
+          if (referrer.includes('facebook.com') || referrer.includes('l.facebook.com') || referrer.includes('messenger.com')) {
+            isAdClick = true;
+            adSource = 'facebook';
+          } else if (referrer.includes('google.com')) {
+            isAdClick = true;
+            adSource = 'google';
+          } else if (referrer.includes('tiktok.com')) {
+            isAdClick = true;
+            adSource = 'tiktok';
           }
         }
 
-        // If real ad click, set the access cookie
         if (isAdClick) {
           setCookie('ad_access_granted', '1');
           if (adSource) setCookie('ad_source', adSource);
           localStorage.setItem('ad_access_granted', '1');
         }
 
-        // ---------- 3. CHECK ACCESS (owner OR ad audience OR returning) ----------
-        const hasOwnerCookie = getCookie('owner_access') === '1';
-        const hasOwnerLocal = localStorage.getItem('owner_access') === '1';
-        const isOwner = hasOwnerCookie || hasOwnerLocal;
+        // ----- Check final access -----
+        const isOwner = (getCookie('owner_access') === '1') || (localStorage.getItem('owner_access') === '1');
+        const isAdAudience = (getCookie('ad_access_granted') === '1') || (localStorage.getItem('ad_access_granted') === '1');
+        const allowed = isOwner || isAdAudience;
 
-        const hasAdCookie = getCookie('ad_access_granted') === '1';
-        const hasAdLocal = localStorage.getItem('ad_access_granted') === '1';
-        const isAdAudience = hasAdCookie || hasAdLocal;
-
-        const isAllowed = isOwner || isAdAudience;
-
-        // ---------- 4. BLOCK UNAUTHORIZED (show 404) ----------
-        if (!isAllowed) {
-          // Remove existing content
+        // ----- If NOT allowed, show 404 and STOP (no React) -----
+        if (!allowed) {
           document.body.innerHTML = '';
-
-          // Inject 404 page (same as original PHP)
           const style = document.createElement('style');
           style.textContent = `
-            * {
-              margin: 0;
-              padding: 0;
-              box-sizing: border-box;
-              font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
-            }
-            body {
-              background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-              min-height: 100vh;
-              display: flex;
-              justify-content: center;
-              align-items: center;
-              color: white;
-              padding: 20px;
-            }
-            .error-container {
-              background: rgba(255, 255, 255, 0.1);
-              backdrop-filter: blur(10px);
-              border-radius: 20px;
-              padding: 60px 40px;
-              text-align: center;
-              max-width: 500px;
-              width: 100%;
-              box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-              border: 1px solid rgba(255, 255, 255, 0.2);
-            }
-            .error-code {
-              font-size: 120px;
-              font-weight: 800;
-              margin-bottom: 20px;
-              line-height: 1;
-              text-shadow: 3px 3px 6px rgba(0, 0, 0, 0.3);
-            }
-            .error-title {
-              font-size: 32px;
-              font-weight: 600;
-              margin-bottom: 20px;
-            }
-            .error-message {
-              font-size: 18px;
-              line-height: 1.6;
-              margin-bottom: 30px;
-              opacity: 0.9;
-            }
-            .error-icon {
-              font-size: 64px;
-              margin-bottom: 30px;
-              display: block;
-            }
-            @media (max-width: 600px) {
-              .error-container {
-                padding: 40px 20px;
-              }
-              .error-code {
-                font-size: 80px;
-              }
-              .error-title {
-                font-size: 24px;
-              }
-              .error-message {
-                font-size: 16px;
-              }
-            }
+            * { margin: 0; padding: 0; box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif; }
+            body { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; display: flex; justify-content: center; align-items: center; color: white; padding: 20px; }
+            .error-container { background: rgba(255,255,255,0.1); backdrop-filter: blur(10px); border-radius: 20px; padding: 60px 40px; text-align: center; max-width: 500px; width: 100%; box-shadow: 0 20px 60px rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.2); }
+            .error-code { font-size: 120px; font-weight: 800; margin-bottom: 20px; line-height: 1; text-shadow: 3px 3px 6px rgba(0,0,0,0.3); }
+            .error-title { font-size: 32px; font-weight: 600; margin-bottom: 20px; }
+            .error-message { font-size: 18px; line-height: 1.6; margin-bottom: 30px; opacity: 0.9; }
+            .error-icon { font-size: 64px; margin-bottom: 30px; display: block; }
+            @media (max-width:600px){ .error-container{padding:40px 20px;} .error-code{font-size:80px;} .error-title{font-size:24px;} .error-message{font-size:16px;} }
           `;
           document.head.appendChild(style);
-
           const container = document.createElement('div');
           container.className = 'error-container';
           container.innerHTML = `
             <div class="error-icon">🔒</div>
             <div class="error-code">404</div>
             <h1 class="error-title">Page Not Found</h1>
-            <p class="error-message">
-              The page you are looking for could not be found.<br>
-              Please check the URL or contact support.
-            </p>
+            <p class="error-message">The page you are looking for could not be found.<br>Please check the URL or contact support.</p>
           `;
           document.body.appendChild(container);
-
-          // Stop React from loading
-          throw new Error('Access denied – 404 page shown');
+          // Do NOT load React – stop here
+          return;
         }
 
-        // ---------- 5. ALLOWED: continue to React app ----------
-        console.log('Access granted – loading Dryfruit Store');
+        // ----- ALLOWED: now load the React app dynamically -----
+        const root = document.createElement('div');
+        root.id = 'root';
+        document.body.appendChild(root);
+        const script = document.createElement('script');
+        script.type = 'module';
+        script.src = '/src/main.jsx';
+        document.body.appendChild(script);
       })();
     </script>
   </head>
-
   <body>
-    <div id="root"></div>
-    <script type="module" src="/src/main.jsx"></script>
+    <!-- No static #root or React script here – they are added only if allowed -->
   </body>
 </html>
