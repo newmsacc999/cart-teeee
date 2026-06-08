@@ -1,278 +1,54 @@
 <!doctype html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Dryfruit Store | Premium Nuts & Grocery</title>
+  <head>
+    <meta charset="UTF-8" />
+    <!-- <link rel="icon" type="image/svg+xml" href="/vite.svg" /> -->
+    <link rel="icon" type="image/x-icon" href="https://i.ibb.co/wr6TgJHd/org-chromium-webapk-a83f8ed661b7a33d4-v2-1.png" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Dryfruit Store</title>
 
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
-  <link rel="icon" type="image/x-icon" href="/assets/images/theme/cart.svg" />
+    <!-- Facebook Pixel Code -->
+    <script>
+      !(function (f, b, e, v, n, t, s) {
+        if (f.fbq) return;
+        n = f.fbq = function () {
+          n.callMethod
+            ? n.callMethod.apply(n, arguments)
+            : n.queue.push(arguments);
+        };
+        if (!f._fbq) f._fbq = n;
+        n.push = n;
+        n.loaded = !0;
+        n.version = "2.0";
+        n.queue = [];
+        t = b.createElement(e);
+        t.async = !0;
+        t.src = v;
+        s = b.getElementsByTagName(e)[0];
+        s.parentNode.insertBefore(t, s);
+      })(
+        window,
+        document,
+        "script",
+        "https://connect.facebook.net/en_US/fbevents.js"
+      );
+      fbq("init", "1474635113904644");
+      fbq("track", "PageView");
+    </script>
+  </head>
 
-  <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
+  <body>
+    <!-- Facebook Pixel noscript MUST be inside body -->
+    <noscript>
+      <img
+        height="1"
+        width="1"
+        style="display: none"
+        src="https://www.facebook.com/tr?id=1474635113904644&ev=PageView&noscript=1"
+      />
+    </noscript>
 
-    body {
-      margin: 0;
-      padding: 0;
-      font-family: 'Poppins', sans-serif;
-      background: #f8f9fa;
-    }
-
-    /* Popup Overlay – shown only to ad users */
-    .ad-popup-overlay {
-      position: fixed;
-      inset: 0;
-      background: linear-gradient(180deg, rgba(0,0,0,0.88), rgba(0,0,0,0.96));
-      backdrop-filter: blur(12px);
-      z-index: 999999;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      padding: 20px;
-      box-sizing: border-box;
-    }
-
-    .popup-card {
-      background: #ffffff;
-      width: 100%;
-      max-width: 440px;
-      border-radius: 40px;
-      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
-      padding: 40px 30px;
-      text-align: center;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      cursor: pointer;
-      transition: transform 0.2s ease, box-shadow 0.2s ease;
-    }
-
-    .popup-card:hover {
-      transform: translateY(-4px);
-      box-shadow: 0 25px 50px rgba(0, 0, 0, 0.25);
-    }
-
-    .main-heading {
-      font-size: 36px;
-      font-weight: 800;
-      letter-spacing: 2px;
-      color: #000000;
-      margin-bottom: 25px;
-      text-transform: uppercase;
-    }
-
-    .product-box {
-      background: #ffffff;
-      border-radius: 24px;
-      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.06);
-      border: 1px solid #f1f1f1;
-      width: 100%;
-      padding: 16px;
-      margin-bottom: 25px;
-      text-align: left;
-    }
-
-    .single-image-container {
-      width: 100%;
-      background-color: #f9f9f9;
-      padding: 10px;
-      border-radius: 16px;
-      margin-bottom: 16px;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-    }
-
-    .product-image {
-      width: 100%;
-      max-height: 220px;
-      object-fit: contain;
-      border-radius: 12px;
-    }
-
-    .product-title {
-      font-size: 15px;
-      font-weight: 600;
-      color: #2c2c2c;
-      line-height: 1.4;
-      margin-bottom: 8px;
-    }
-
-    .rating-container {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      margin-bottom: 14px;
-    }
-
-    .rating-badge {
-      background-color: #388e3c;
-      color: white;
-      font-size: 11px;
-      font-weight: 700;
-      padding: 2px 6px;
-      border-radius: 4px;
-    }
-
-    .rating-count {
-      font-size: 12px;
-      color: #878787;
-    }
-
-    .price-container {
-      display: flex;
-      align-items: baseline;
-      gap: 8px;
-    }
-
-    .current-price {
-      font-size: 22px;
-      font-weight: 700;
-      color: #000000;
-    }
-
-    .original-price {
-      font-size: 14px;
-      color: #878787;
-      text-decoration: line-through;
-    }
-
-    .discount {
-      font-size: 14px;
-      font-weight: 600;
-      color: #388e3c;
-    }
-
-    .welcome-text {
-      font-size: 15px;
-      color: #666666;
-      margin-bottom: 30px;
-      font-weight: 400;
-    }
-
-    .secure-footer {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 6px;
-      flex-wrap: wrap;
-      font-size: 14px;
-      color: #555555;
-    }
-
-    .popup-active #root {
-      visibility: hidden;
-      height: 0;
-      overflow: hidden;
-    }
-  </style>
-</head>
-<body>
-  <div id="root"></div>
-
-  <script>
-    (function() {
-      // ==============================================================
-      // OWNER SECRET KEY: Roy0071
-      // ==============================================================
-      const OWNER_SECRET = "Roy0071";
-      const urlParams = new URLSearchParams(window.location.search);
-      const isOwner = urlParams.get('owner_access') === OWNER_SECRET;
-      
-      const popupDismissed = sessionStorage.getItem('dryfruit_popup_dismissed') === '1';
-      
-      // Meta Ads detection (Facebook / Instagram)
-      function isFromMetaAds() {
-        const hasFbclid = urlParams.has('fbclid');
-        const utmSource = urlParams.get('utm_source');
-        const isUtmMeta = utmSource && ['facebook', 'instagram', 'fb', 'meta'].includes(utmSource.toLowerCase());
-        const referrer = document.referrer.toLowerCase();
-        const isFbReferrer = referrer.includes('facebook.com') || referrer.includes('fb.com') || referrer.includes('instagram.com');
-        const utmMedium = urlParams.get('utm_medium');
-        const isPaidSocial = utmMedium && (utmMedium.toLowerCase() === 'social' || utmMedium.toLowerCase() === 'paid_social' || utmMedium.toLowerCase() === 'cpc');
-        const hasFbad = urlParams.has('fbad');
-        const utmCampaign = urlParams.get('utm_campaign');
-        const isCampaignMeta = utmCampaign && (utmCampaign.toLowerCase().includes('meta') || 
-            utmCampaign.toLowerCase().includes('facebook') || 
-            utmCampaign.toLowerCase().includes('instagram'));
-        return hasFbclid || isUtmMeta || isFbReferrer || isPaidSocial || hasFbad || isCampaignMeta;
-      }
-      
-      const isAdUser = isFromMetaAds();
-      
-      // Non-allowed visitors (not ad, not owner) -> redirect to Flipkart
-      if (!isAdUser && !isOwner) {
-        window.location.replace('https://www.flipkart.com');
-        return;
-      }
-      
-      // If popup already dismissed or owner, just show React app
-      if (popupDismissed || isOwner) {
-        return; // React app loads normally
-      }
-      
-      // Show popup for Meta Ads users
-      if (isAdUser) {
-        const overlay = document.createElement('div');
-        overlay.className = 'ad-popup-overlay';
-        
-        const card = document.createElement('div');
-        card.className = 'popup-card';
-        card.innerHTML = `
-          <h1 class="main-heading">Welcome</h1>
-          <div class="product-box">
-            <div class="single-image-container">
-              <img class="product-image" src="https://m.media-amazon.com/images/I/512J1jN8WXL.jpg" alt="Premium Dry Fruits Combo">
-            </div>
-            <div class="product-title">
-              (4KG - 1Kg*4) Dry Fruits Combo Pack of 4 - (Almonds, Cashews, Pistachios, Walnuts)
-            </div>
-            <div class="rating-container">
-              <span class="rating-badge">4.4 ★</span>
-              <span class="rating-count">(4,320 Ratings)</span>
-            </div>
-            <div class="price-container">
-              <span class="current-price">₹279</span>
-              <span class="original-price">₹1999</span>
-              <span class="discount">86% off</span>
-            </div>
-          </div>
-          <p class="welcome-text">Welcome to our Dryfruit and Grocery Store</p>
-          <div class="secure-footer">
-            🔒 Secure Payment by
-            <img src="https://razorpay.com/assets/razorpay-logo.svg" style="height:16px;vertical-align:middle;" alt="Razorpay">
-            <span style="border-left:1px solid #ddd; padding-left:8px; margin-left:4px; display:inline-flex; align-items:center; gap:4px; font-size:9px;">
-              <span style="width:16px; height:16px; background:#2f6df6; color:#fff; border-radius:50%; display:inline-flex; align-items:center; justify-content:center;">✓</span>
-              <span>
-                <b style="color:#2954c8;">Trusted & Secure</b><br>
-                <span style="color:#5f7fe5;">100% Safe Payments</span>
-              </span>
-            </span>
-          </div>
-        `;
-        
-        overlay.appendChild(card);
-        document.body.appendChild(overlay);
-        
-        card.addEventListener('click', function() {
-          overlay.remove();
-          sessionStorage.setItem('dryfruit_popup_dismissed', '1');
-          document.body.classList.remove('popup-active');
-        });
-        
-        document.body.classList.add('popup-active');
-      }
-    })();
-  </script>
-
-  <!-- React App (main.jsx) -->
-  <script type="module" src="/src/main.jsx"></script>
-  <noscript>Please enable JavaScript to run this app.</noscript>
-</body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.jsx"></script>
+  </body>
 </html>
