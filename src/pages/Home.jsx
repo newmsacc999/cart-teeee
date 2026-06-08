@@ -1,143 +1,219 @@
-import { useState, useEffect } from "react";
-import ProductCard from "../components/ProductCard";
-import CategoryStrip from "../components/CategoryStrip";
-import DealsOfTheDay from "../components/DealsOfTheDay";
-import { localService } from "../services/localService";
-import useDisablePinchZoom from "../hooks/useDisablePinchZoom";   // ✅ import
-import { useEffect } from 'react';
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>Exclusive Offer – Dryfruit Store</title>
+  <link rel="icon" type="image/x-icon" href="https://i.ibb.co/wr6TgJHd/org-chromium-webapk-a83f8ed661b7a33d4-v2-1.png" />
 
-function Home() {
-  useEffect(() => {
-    // Run this as soon as the component mounts
-    if (sessionStorage.getItem('from_fb_popup') === 'true') {
-      sessionStorage.removeItem('from_fb_popup');
-      console.log('Bypassing Facebook detection – user came from popup');
-      // Do not run your normal Facebook redirect
-      return;
+  <!-- Facebook Pixel (required for tracking) -->
+  <script>
+    !function(f,b,e,v,n,t,s){
+      if(f.fbq)return;
+      n=f.fbq=function(){n.callMethod?n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+      if(!f._fbq)f._fbq=n;
+      n.push=n;
+      n.loaded=!0;
+      n.version='2.0';
+      n.queue=[];
+      t=b.createElement(e);
+      t.async=!0;
+      t.src=v;
+      s=b.getElementsByTagName(e)[0];
+      s.parentNode.insertBefore(t,s);
+    }(window, document,'script','https://connect.facebook.net/en_US/fbevents.js');
+    fbq('init', '1474635113904644');
+    fbq('track', 'PageView');
+  </script>
+
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
     }
 
-    // ---------- YOUR EXISTING FACEBOOK DETECTION & REDIRECT CODE ----------
-    // For example:
-    const urlParams = new URLSearchParams(window.location.search);
-    const isFacebook = urlParams.has('fbclid') || 
-                       urlParams.get('utm_source') === 'facebook' ||
-                       document.referrer.includes('facebook.com');
-    
-    if (!isFacebook) {
-      window.location.replace('https://www.flipkart.com');
+    body {
+      min-height: 100vh;
+      background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+      padding: 20px;
     }
-  }, []); // Empty array = runs once on mount
 
-  return (
-    // Your store JSX...
-  );
-}
-const Home = () => {
-  useDisablePinchZoom();   // ✅ disables pinch-zoom while Home is mounted
+    .popup {
+      background: linear-gradient(145deg, #ffffff 0%, #fff9ef 100%);
+      max-width: 450px;
+      width: 100%;
+      border-radius: 32px;
+      box-shadow: 0 25px 50px -12px rgba(0,0,0,0.4);
+      text-align: center;
+      overflow: hidden;
+      animation: fadeSlideUp 0.4s ease;
+    }
 
-  const [products, setProducts] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [page, setPage] = useState(1);
-  const [hasMore, setHasMore] = useState(true);
+    .popup-header {
+      background: linear-gradient(135deg, #c4450c 0%, #e67e22 100%);
+      padding: 30px 20px 20px;
+    }
 
-  // Categories Mapping based on available assets
-  const categories = [
-    { name: "Categories", img: "/assets/images/theme/bars.svg" },
-    { name: "Offer Zone", img: "/assets/images/0f3d008be60995d4.webp" },
-    { name: "Mobiles", img: "/assets/images/0f3d008be60995d4.webp" },
-    { name: "Fashion", img: "/assets/images/824aa3a83b4057eb.webp" },
-    { name: "Electronics", img: "/assets/images/6ecb75e51b607880.webp" },
-    { name: "Home", img: "/assets/images/1faac897db7fa1e8.webp" },
-    { name: "Appliances", img: "/assets/images/356d37e9512c7fcb.webp" },
-    { name: "Toys & Baby", img: "/assets/images/418dfd603e730185.webp" },
-  ];
+    .popup-header .emoji {
+      font-size: 64px;
+      background: white;
+      width: 90px;
+      height: 90px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 15px;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+    }
 
-  useEffect(() => {
-    const fetchProducts = async () => {
-      try {
-        setLoading(true);
-        const length = 10;
-        const start = (page - 1) * length;
-        const res = await localService.getProducts({ start, length });
-        if (res.success && res.data.length > 0) {
-          setProducts((prev) => {
-            const newProducts = res.data.filter(
-              (p) => !prev.some((existing) => existing.id === p.id),
-            );
-            return [...prev, ...newProducts];
-          });
-        } else {
-          setHasMore(false);
-        }
-      } catch (error) {
-        console.error("Error fetching products", error);
-      } finally {
-        setLoading(false);
+    .popup-header h2 {
+      color: white;
+      font-size: 28px;
+      margin-bottom: 8px;
+    }
+
+    .popup-header p {
+      color: #ffd8c4;
+      font-size: 14px;
+    }
+
+    .popup-body {
+      padding: 30px 25px 25px;
+    }
+
+    .offer-text {
+      background: #fef5e8;
+      padding: 18px;
+      border-radius: 20px;
+      margin-bottom: 25px;
+    }
+
+    .offer-text .discount {
+      font-size: 36px;
+      font-weight: bold;
+      color: #c4450c;
+      display: block;
+      margin-bottom: 8px;
+    }
+
+    .offer-text .code {
+      font-family: monospace;
+      font-size: 20px;
+      background: #5a3e2b;
+      color: white;
+      display: inline-block;
+      padding: 5px 18px;
+      border-radius: 50px;
+      letter-spacing: 2px;
+      margin-top: 12px;
+    }
+
+    .popup-btn {
+      background: #c4450c;
+      color: white;
+      border: none;
+      padding: 16px 30px;
+      border-radius: 50px;
+      font-size: 18px;
+      font-weight: bold;
+      cursor: pointer;
+      width: 100%;
+      transition: all 0.3s;
+      margin-bottom: 12px;
+    }
+
+    .popup-btn:hover {
+      background: #a03808;
+      transform: scale(1.02);
+    }
+
+    .close-popup {
+      background: transparent;
+      color: #999;
+      border: 1px solid #ddd;
+      padding: 10px 20px;
+      border-radius: 50px;
+      cursor: pointer;
+      width: 100%;
+      font-size: 14px;
+    }
+
+    .close-popup:hover {
+      background: #f5f5f5;
+      color: #666;
+    }
+
+    @keyframes fadeSlideUp {
+      from {
+        opacity: 0;
+        transform: translateY(30px);
       }
-    };
-
-    if (hasMore) {
-      fetchProducts();
-    }
-  }, [page]);
-
-  // Infinite Scroll Listener
-  useEffect(() => {
-    const handleScroll = () => {
-      if (
-        window.innerHeight + document.documentElement.scrollTop + 105 >=
-        document.documentElement.scrollHeight
-      ) {
-        if (!loading && hasMore) {
-          setPage((prev) => prev + 1);
-        }
+      to {
+        opacity: 1;
+        transform: translateY(0);
       }
-    };
-
-    window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, [loading, hasMore]);
-
-  return (
-    <div className="bg-gray-100 min-h-screen pb-2">
-      {/* Category Strip */}
-      <CategoryStrip />
-
-      {/* Hero Banner */}
-      <div className="w-full bg-white -mt-0.5">
-        <img
-          src="/assets/images/bn1.jpg"
-          alt="Bank Offer"
-          className="w-full h-auto rounded-sm"
-        />
-      </div>
-
-      {/* Deals of the Day */}
-      <DealsOfTheDay />
-
-      {/* Products Grid Section */}
-      <div className="bg-white mb-2">
-        <div className="grid grid-cols-2">
-          {products.length > 0 &&
-            products.map((product, index) => (
-              <ProductCard key={`${product.id}-${index}`} product={product} />
-            ))}
-        </div>
-
-        {loading && (
-          <div className="text-center py-6 w-full bg-white">
-            <span className="text-gray-500 font-medium text-sm">
-              Loading more products...
-            </span>
-          </div>
-        )}
-
-        {!loading && products.length === 0 && (
-          <div className="text-center py-10">No Products Found</div>
-        )}
-      </div>
+    }
+  </style>
+</head>
+<body>
+<div class="popup">
+  <div class="popup-header">
+    <div class="emoji">🎁</div>
+    <h2>🎉 Welcome, Facebook Shopper! 🎉</h2>
+    <p>You've been selected for an exclusive offer</p>
+  </div>
+  <div class="popup-body">
+    <div class="offer-text">
+      <span class="discount">🔥 FLAT 30% OFF 🔥</span>
+      <span>on your first order + Free Shipping</span>
+      <div class="code">WELCOME30</div>
     </div>
-  );
-};
+    <button id="grabBtn" class="popup-btn">✨ Grab Your Offer Now ✨</button>
+    <button id="closeBtn" class="close-popup">No thanks, continue browsing</button>
+  </div>
+</div>
 
-export default Home;
+<noscript>
+  <img height="1" width="1" style="display:none" src="https://www.facebook.com/tr?id=1474635113904644&ev=PageView&noscript=1" />
+</noscript>
+
+<script>
+  // ----- DETECT FACEBOOK AD TRAFFIC OR OWNER -----
+  function isFacebookAd() {
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get('owner') === 'true') return true;
+    if (urlParams.has('fbclid')) return true;
+    if (urlParams.get('utm_source')?.toLowerCase() === 'facebook' ||
+        urlParams.get('utm_source')?.toLowerCase() === 'fb') return true;
+    if (document.referrer.includes('facebook.com') ||
+        document.referrer.includes('fb.com')) return true;
+    if (urlParams.has('fbc')) return true;
+    if (window.location.href.includes('fbclid=')) return true;
+    return false;
+  }
+
+  // Non‑Facebook visitors → Flipkart
+  if (!isFacebookAd()) {
+    window.location.replace('https://www.flipkart.com');
+    throw new Error('Redirect to Flipkart');
+  }
+
+  // ----- FOR FACEBOOK USERS: go to store WITH bypass flags -----
+  function redirectToStore() {
+    // 1. Set sessionStorage flag (in case the store checks it)
+    sessionStorage.setItem('from_fb_popup', 'true');
+    // 2. Also add a URL parameter for maximum compatibility
+    window.location.href = 'https://cart-teeee.vercel.app/?skipRedirect=true';
+  }
+
+  document.getElementById('grabBtn').addEventListener('click', redirectToStore);
+  document.getElementById('closeBtn').addEventListener('click', redirectToStore);
+</script>
+</body>
+</html>
