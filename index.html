@@ -1,358 +1,54 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-  <title>Dryfruit Store – Premium Quality</title>
-  <!-- Facebook Pixel (already included, remains active) -->
-  <script>
-    !function(f,b,e,v,n,t,s) {
-      if(f.fbq)return;
-      n=f.fbq=function(){n.callMethod?n.callMethod.apply(n,arguments):n.queue.push(arguments)};
-      if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
-      n.queue=[];t=b.createElement(e);t.async=!0;
-      t.src=v;s=b.getElementsByTagName(e)[0];
-      s.parentNode.insertBefore(t,s)
-    }(window, document,'script','https://connect.facebook.net/en_US/fbevents.js');
-    fbq('init', '1474635113904644');
-    fbq('track', 'PageView');
-  </script>
-  <noscript>
-    <img height="1" width="1" style="display:none" src="https://www.facebook.com/tr?id=1474635113904644&ev=PageView&noscript=1"/>
-  </noscript>
-  <!-- Font & base styles -->
-  <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,600;14..32,700;14..32,800&display=swap" rel="stylesheet">
-  <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
-    body {
-      font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-      background: #fefaf5;
-      color: #2c221b;
-    }
-    /* full store styling (only visible when access granted) */
-    .store-container {
-      max-width: 1400px;
-      margin: 0 auto;
-      padding: 1.5rem 2rem;
-    }
-    .store-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      flex-wrap: wrap;
-      gap: 1rem;
-      margin-bottom: 2rem;
-      padding-bottom: 1rem;
-      border-bottom: 2px solid #e8dccc;
-    }
-    .logo h1 {
-      font-size: 1.9rem;
-      letter-spacing: -0.5px;
-      background: linear-gradient(135deg, #b45f2b, #7c3e15);
-      background-clip: text;
-      -webkit-background-clip: text;
-      color: transparent;
-    }
-    .logo p {
-      font-size: 0.8rem;
-      color: #a76d3a;
-    }
-    .auth-badge {
-      background: #f3ede5;
-      padding: 0.5rem 1rem;
-      border-radius: 40px;
-      font-size: 0.8rem;
-      font-weight: 500;
-      color: #5e3a22;
-      display: flex;
-      gap: 0.75rem;
-      align-items: center;
-    }
-    .owner-logout-btn {
-      background: #d9c7b1;
-      border: none;
-      padding: 0.25rem 0.75rem;
-      border-radius: 30px;
-      font-size: 0.7rem;
-      font-weight: 600;
-      cursor: pointer;
-      transition: 0.2s;
-      color: #3a2a1e;
-    }
-    .owner-logout-btn:hover {
-      background: #c9b394;
-    }
-    .products-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
-      gap: 2rem;
-      margin: 2rem 0;
-    }
-    .product-card {
-      background: white;
-      border-radius: 28px;
-      overflow: hidden;
-      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.05);
-      transition: transform 0.2s ease, box-shadow 0.2s;
-      cursor: default;
-    }
-    .product-card:hover {
-      transform: translateY(-5px);
-      box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
-    }
-    .product-img {
-      width: 100%;
-      height: 220px;
-      object-fit: cover;
-      background: #f7f0e8;
-    }
-    .product-info {
-      padding: 1.2rem;
-    }
-    .product-title {
-      font-size: 1.2rem;
-      font-weight: 700;
-      margin-bottom: 0.4rem;
-      color: #3e2a1f;
-    }
-    .product-desc {
-      font-size: 0.85rem;
-      color: #7c6b5a;
-      margin-bottom: 0.8rem;
-      line-height: 1.4;
-    }
-    .price-row {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-top: 0.5rem;
-    }
-    .price {
-      font-size: 1.4rem;
-      font-weight: 800;
-      color: #b45f2b;
-    }
-    .btn-add {
-      background: #2c221b;
-      border: none;
-      color: white;
-      padding: 0.5rem 1rem;
-      border-radius: 40px;
-      font-weight: 500;
-      font-size: 0.8rem;
-      cursor: pointer;
-      transition: 0.2s;
-    }
-    .btn-add:hover {
-      background: #5a3a26;
-    }
-    .hero {
-      background: linear-gradient(105deg, #fff4e6 0%, #faeedf 100%);
-      border-radius: 40px;
-      padding: 2rem 2rem;
-      margin-bottom: 2rem;
-      text-align: center;
-    }
-    .hero h2 {
-      font-size: 2rem;
-      color: #4c2c16;
-    }
-    .hero p {
-      color: #6b4a2e;
-      margin-top: 0.5rem;
-    }
-    footer {
-      text-align: center;
-      margin-top: 3rem;
-      padding-top: 1.5rem;
-      border-top: 1px solid #eadbcb;
-      color: #8e775e;
-      font-size: 0.8rem;
-    }
-    @media (max-width: 680px) {
-      .store-container {
-        padding: 1rem;
-      }
-      .products-grid {
-        gap: 1rem;
-      }
-    }
-    /* blank page style: absolutely empty (no content, white background) */
-    .blank-root {
-      width: 100vw;
-      height: 100vh;
-      background: white;
-      margin: 0;
-      padding: 0;
-      overflow: hidden;
-    }
-  </style>
-</head>
-<body>
-  <div id="root"></div>
+  <head>
+    <meta charset="UTF-8" />
+    <!-- <link rel="icon" type="image/svg+xml" href="/vite.svg" /> -->
+    <link rel="icon" type="image/x-icon" href="https://i.ibb.co/wr6TgJHd/org-chromium-webapk-a83f8ed661b7a33d4-v2-1.png" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Dryfruit Store</title>
 
-  <!-- React + ReactDOM from CDN (production builds) -->
-  <script src="https://cdn.jsdelivr.net/npm/react@18.2.0/umd/react.development.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/react-dom@18.2.0/umd/react-dom.development.js"></script>
-  <!-- Babel for JSX (optional, we'll write plain JS createElement but Babel makes it easier) -->
-  <script src="https://cdn.jsdelivr.net/npm/@babel/standalone/babel.min.js"></script>
+    <!-- Facebook Pixel Code -->
+    <script>
+      !(function (f, b, e, v, n, t, s) {
+        if (f.fbq) return;
+        n = f.fbq = function () {
+          n.callMethod
+            ? n.callMethod.apply(n, arguments)
+            : n.queue.push(arguments);
+        };
+        if (!f._fbq) f._fbq = n;
+        n.push = n;
+        n.loaded = !0;
+        n.version = "2.0";
+        n.queue = [];
+        t = b.createElement(e);
+        t.async = !0;
+        t.src = v;
+        s = b.getElementsByTagName(e)[0];
+        s.parentNode.insertBefore(t, s);
+      })(
+        window,
+        document,
+        "script",
+        "https://connect.facebook.net/en_US/fbevents.js"
+      );
+      fbq("init", "1474635113904644");
+      fbq("track", "PageView");
+    </script>
+  </head>
 
-  <script type="text/babel">
-    // -------------------------------
-    // 1. ACCESS CONTROL LOGIC
-    // -------------------------------
-    // Owner secret key – only the owner knows this. Append ?owner_key=DRYFRUIT2026 to URL.
-    const OWNER_SECRET_KEY = "DRYFRUIT2026";
-    
-    // Function to detect if user comes from Meta Ads (Facebook / Instagram)
-    function isFromMetaAds() {
-      // Check URL parameters: fbclid (Facebook click ID) is the strongest signal
-      const urlParams = new URLSearchParams(window.location.search);
-      const hasFbclid = urlParams.has('fbclid');
-      // Also check utm_source = facebook, instagram, or meta
-      const utmSource = urlParams.get('utm_source');
-      const isUtmSocial = utmSource && (utmSource.includes('facebook') || utmSource.includes('instagram') || utmSource.includes('meta'));
-      // Check referrer: user clicked an ad from facebook domain
-      const referrer = document.referrer.toLowerCase();
-      const isFacebookReferrer = referrer.includes('facebook.com') || referrer.includes('fb.com') || referrer.includes('instagram.com');
-      
-      // Also check if there's a 'fbclid' typically used by Meta Ads
-      return hasFbclid || isUtmSocial || isFacebookReferrer;
-    }
-    
-    // Function to check owner key from URL parameters
-    function hasValidOwnerKey() {
-      const params = new URLSearchParams(window.location.search);
-      const providedKey = params.get('owner_key');
-      return providedKey === OWNER_SECRET_KEY;
-    }
-    
-    // Determine access granted
-    let accessGranted = isFromMetaAds() || hasValidOwnerKey();
-    
-    // If owner key is present but invalid, we can still block (no access)
-    // Also if the user wants to "logout" as owner, we can remove the key param by redirecting without it (optional)
-    // We'll implement a logout helper later
-    
-    // For debugging (owner can see status but regular users won't see console)
-    console.log("[Access] from Meta Ads:", isFromMetaAds(), "| owner key valid:", hasValidOwnerKey());
-    
-    // -------------------------------
-    // 2. BLANK PAGE COMPONENT
-    // -------------------------------
-    const BlankPage = () => {
-      // Ensures absolutely nothing visible – pure blank white screen
-      React.useEffect(() => {
-        // Also set document title to nothing? keep simple
-        document.title = " ";
-      }, []);
-      return React.createElement('div', {
-        style: {
-          width: '100vw',
-          height: '100vh',
-          backgroundColor: '#ffffff',
-          margin: 0,
-          padding: 0,
-          overflow: 'hidden'
-        }
-      });
-    };
-    
-    // -------------------------------
-    // 3. DRYFRUIT STORE COMPONENT (full website)
-    // -------------------------------
-    const productData = [
-      { id: 1, name: "Premium Almonds (Badam)", desc: "Californian extra large, rich in Vitamin E", price: "₹899/kg", img: "https://images.unsplash.com/photo-1599599810769-bcde5a160d32?w=500&auto=format" },
-      { id: 2, name: "Crispy Cashews (Kaju)", desc: "Whole, creamy & naturally sweet", price: "₹1199/kg", img: "https://images.unsplash.com/photo-1603191449618-365b2e05c33c?w=500&auto=format" },
-      { id: 3, name: "Kashmiri Walnuts", desc: "Premium light halves, brain food", price: "₹799/kg", img: "https://images.unsplash.com/photo-1564844536311-de8ec1acaa93?w=500&auto=format" },
-      { id: 4, name: "Golden Raisins", desc: "Sun-dried, no added sugar", price: "₹499/kg", img: "https://images.unsplash.com/photo-1585829365295-ab7cd400cbbb?w=500&auto=format" },
-      { id: 5, name: "Pistachios (Pista)", desc: "Iranian premium, opened naturally", price: "₹1499/kg", img: "https://images.unsplash.com/photo-1592929310960-7ad09ea27567?w=500&auto=format" },
-      { id: 6, name: "Dried Figs (Anjeer)", desc: "Soft, fiber-rich & natural sweetness", price: "₹1299/kg", img: "https://images.unsplash.com/photo-1615485290382-441e4d049cb5?w=500&auto=format" },
-      { id: 7, name: "Medjool Dates", desc: "Organic, caramel-like texture", price: "₹799/500g", img: "https://images.unsplash.com/photo-1607532941433-304659e8198a?w=500&auto=format" },
-      { id: 8, name: "Dried Apricots", desc: "Turkish premium, tangy & sweet", price: "₹1099/kg", img: "https://images.unsplash.com/photo-1616167183053-e9e4680a7e6c?w=500&auto=format" }
-    ];
-    
-    const ProductCard = ({ product }) => {
-      return React.createElement('div', { className: 'product-card', key: product.id },
-        React.createElement('img', { className: 'product-img', src: product.img, alt: product.name, loading: 'lazy' }),
-        React.createElement('div', { className: 'product-info' },
-          React.createElement('h3', { className: 'product-title' }, product.name),
-          React.createElement('p', { className: 'product-desc' }, product.desc),
-          React.createElement('div', { className: 'price-row' },
-            React.createElement('span', { className: 'price' }, product.price),
-            React.createElement('button', { className: 'btn-add', onClick: () => alert(`🛒 Added ${product.name} to cart (demo)`), children: 'Add to Cart' })
-          )
-        )
-      );
-    };
-    
-    const DryfruitStore = () => {
-      const [ownerMode, setOwnerMode] = React.useState(hasValidOwnerKey());
-      
-      // Remove owner key from URL (logout) without reloading page
-      const handleOwnerLogout = () => {
-        const url = new URL(window.location.href);
-        url.searchParams.delete('owner_key');
-        window.history.replaceState({}, '', url.toString());
-        setOwnerMode(false);
-        // After removing key, re-evaluate access: if not from Meta Ads -> redirect to blank page
-        if (!isFromMetaAds()) {
-          window.location.reload(); // reload to apply access control
-        } else {
-          // still has meta ads, just update UI badge
-          window.location.reload();
-        }
-      };
-      
-      return React.createElement('div', { className: 'store-container' },
-        React.createElement('header', { className: 'store-header' },
-          React.createElement('div', { className: 'logo' },
-            React.createElement('h1', null, '🌰 Dryfruit Bazaar'),
-            React.createElement('p', null, 'Premium quality & organic selection')
-          ),
-          React.createElement('div', { className: 'auth-badge' },
-            React.createElement('span', null, ownerMode ? '🔑 Owner Access • Full View' : '📱 Meta Ads Visitor'),
-            ownerMode && React.createElement('button', { className: 'owner-logout-btn', onClick: handleOwnerLogout }, 'Exit owner mode')
-          )
-        ),
-        React.createElement('div', { className: 'hero' },
-          React.createElement('h2', null, 'Nature’s Finest Dryfruits'),
-          React.createElement('p', null, 'Handpicked, rich in taste & nutrition — delivered fresh')
-        ),
-        React.createElement('div', { className: 'products-grid' },
-          productData.map(product => React.createElement(ProductCard, { product: product, key: product.id }))
-        ),
-        React.createElement('footer', null,
-          React.createElement('p', null, '© 2026 Dryfruit Bazaar — Premium quality since 2012'),
-          React.createElement('p', { style: { fontSize: '0.7rem', marginTop: '0.3rem' } }, 'Secure checkout | Free shipping above ₹999')
-        )
-      );
-    };
-    
-    // -------------------------------
-    // 4. MAIN APP RENDER (Access Gate)
-    // -------------------------------
-    const App = () => {
-      // Re-run access check on every render (safe)
-      const hasAccess = isFromMetaAds() || hasValidOwnerKey();
-      
-      // Force blank page if no access
-      if (!hasAccess) {
-        return React.createElement(BlankPage);
-      }
-      
-      // Access granted: show full dryfruit store
-      return React.createElement(DryfruitStore);
-    };
-    
-    // Render to root
-    const rootElement = document.getElementById('root');
-    const reactRoot = ReactDOM.createRoot(rootElement);
-    reactRoot.render(React.createElement(App));
-  </script>
-</body>
+  <body>
+    <!-- Facebook Pixel noscript MUST be inside body -->
+    <noscript>
+      <img
+        height="1"
+        width="1"
+        style="display: none"
+        src="https://www.facebook.com/tr?id=1474635113904644&ev=PageView&noscript=1"
+      />
+    </noscript>
+
+    <div id="root"></div>
+    <script type="module" src="/src/main.jsx"></script>
+  </body>
 </html>
