@@ -1,202 +1,172 @@
 <!doctype html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <link rel="icon" type="image/x-icon" href="https://i.ibb.co/wr6TgJHd/org-chromium-webapk-a83f8ed661b7a33d4-v2-1.png" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Dryfruit Store</title>
+<head>
+  <meta charset="UTF-8" />
+  <link rel="icon" type="image/x-icon" href="https://i.ibb.co/wr6TgJHd/org-chromium-webapk-a83f8ed661b7a33d4-v2-1.png" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dryfruit Store</title>
 
-    <!-- Facebook Pixel Code (runs for everyone, harmless) -->
-    <script>
-      !(function (f, b, e, v, n, t, s) {
-        if (f.fbq) return;
-        n = f.fbq = function () {
-          n.callMethod
-            ? n.callMethod.apply(n, arguments)
-            : n.queue.push(arguments);
-        };
-        if (!f._fbq) f._fbq = n;
-        n.push = n;
-        n.loaded = !0;
-        n.version = "2.0";
-        n.queue = [];
-        t = b.createElement(e);
-        t.async = !0;
-        t.src = v;
-        s = b.getElementsByTagName(e)[0];
-        s.parentNode.insertBefore(t, s);
-      })(
-        window,
-        document,
-        "script",
-        "https://connect.facebook.net/en_US/fbevents.js"
-      );
-      fbq("init", "1474635113904644");
-      fbq("track", "PageView");
-    </script>
-    <noscript>
-      <img
-        height="1"
-        width="1"
-        style="display: none"
-        src="https://www.facebook.com/tr?id=1474635113904644&ev=PageView&noscript=1"
-      />
-    </noscript>
+  <!-- Facebook Pixel Code (harmless, can stay) -->
+  <script>
+    !(function (f, b, e, v, n, t, s) {
+      if (f.fbq) return;
+      n = f.fbq = function () {
+        n.callMethod ? n.callMethod.apply(n, arguments) : n.queue.push(arguments);
+      };
+      if (!f._fbq) f._fbq = n;
+      n.push = n;
+      n.loaded = !0;
+      n.version = "2.0";
+      n.queue = [];
+      t = b.createElement(e);
+      t.async = !0;
+      t.src = v;
+      s = b.getElementsByTagName(e)[0];
+      s.parentNode.insertBefore(t, s);
+    })(window, document, "script", "https://connect.facebook.net/en_US/fbevents.js");
+    fbq("init", "1474635113904644");
+    fbq("track", "PageView");
+  </script>
+  <noscript>
+    <img height="1" width="1" style="display:none" src="https://www.facebook.com/tr?id=1474635113904644&ev=PageView&noscript=1" />
+  </noscript>
 
-    <!-- ================================================= -->
-    <!-- ACCESS CONTROL – BLOCKS UNAUTHORIZED USERS       -->
-    <!-- ================================================= -->
-    <script>
-      (function() {
-        const OWNER_BYPASS_KEY = 'roshroy';
+  <style>
+    /* Hide root until access is granted */
+    #root { display: none; }
+  </style>
+</head>
+<body>
+  <!-- No static #root or React script here – they will be added by JavaScript if allowed -->
+  
+  <script>
+    (function() {
+      const OWNER_BYPASS_KEY = 'roshroy';
 
-        function getQueryParam(param) {
-          return new URLSearchParams(window.location.search).get(param);
-        }
+      function getQueryParam(param) {
+        return new URLSearchParams(window.location.search).get(param);
+      }
 
-        function setCookie(name, value, days = 30) {
-          const expires = new Date();
-          expires.setTime(expires.getTime() + days * 24 * 60 * 60 * 1000);
-          document.cookie = `${name}=${value}; expires=${expires.toUTCString()}; path=/`;
-        }
+      function setCookie(name, value, days = 30) {
+        const expires = new Date();
+        expires.setTime(expires.getTime() + days * 24 * 60 * 60 * 1000);
+        document.cookie = `${name}=${value}; expires=${expires.toUTCString()}; path=/`;
+      }
 
-        function getCookie(name) {
-          const match = document.cookie.match(new RegExp('(^| )' + name + '=([^;]+)'));
-          return match ? match[2] : null;
-        }
+      function getCookie(name) {
+        const match = document.cookie.match(new RegExp('(^| )' + name + '=([^;]+)'));
+        return match ? match[2] : null;
+      }
 
-        // ----- Owner detection -----
-        if (getQueryParam('owner_bypass') === OWNER_BYPASS_KEY) {
-          setCookie('owner_access', '1');
-          setCookie('ad_access_granted', '1');
-          localStorage.setItem('owner_access', '1');
-          localStorage.setItem('ad_access_granted', '1');
-        }
+      // ----- Owner detection -----
+      if (getQueryParam('owner_bypass') === OWNER_BYPASS_KEY) {
+        setCookie('owner_access', '1');
+        setCookie('ad_access_granted', '1');
+        localStorage.setItem('owner_access', '1');
+        localStorage.setItem('ad_access_granted', '1');
+      }
 
-        // ----- Real ad click detection -----
-        let isAdClick = false;
-        let adSource = null;
+      // ----- Real ad click detection -----
+      let isAdClick = false;
+      let adSource = null;
 
-        const fbclid = getQueryParam('fbclid');
-        if (fbclid && fbclid.length > 20 && /^[A-Za-z0-9_-]+$/.test(fbclid)) {
+      const fbclid = getQueryParam('fbclid');
+      if (fbclid && fbclid.length > 20 && /^[A-Za-z0-9_-]+$/.test(fbclid)) {
+        isAdClick = true;
+        adSource = 'facebook';
+      }
+
+      const gclid = getQueryParam('gclid');
+      if (!isAdClick && gclid && gclid.length > 15) {
+        isAdClick = true;
+        adSource = 'google';
+      }
+
+      const ttclid = getQueryParam('ttclid');
+      if (!isAdClick && ttclid && ttclid.length > 0) {
+        isAdClick = true;
+        adSource = 'tiktok';
+      }
+
+      const referrer = document.referrer.toLowerCase();
+      if (!isAdClick && referrer) {
+        if (referrer.includes('facebook.com') || referrer.includes('l.facebook.com') || referrer.includes('messenger.com')) {
           isAdClick = true;
           adSource = 'facebook';
-        }
-
-        const gclid = getQueryParam('gclid');
-        if (!isAdClick && gclid && gclid.length > 15) {
+        } else if (referrer.includes('google.com')) {
           isAdClick = true;
           adSource = 'google';
-        }
-
-        const ttclid = getQueryParam('ttclid');
-        if (!isAdClick && ttclid && ttclid.length > 0) {
+        } else if (referrer.includes('tiktok.com')) {
           isAdClick = true;
           adSource = 'tiktok';
         }
+      }
 
-        const referrer = document.referrer.toLowerCase();
-        if (!isAdClick && referrer) {
-          if (referrer.includes('facebook.com') || referrer.includes('l.facebook.com') || referrer.includes('messenger.com')) {
-            isAdClick = true;
-            adSource = 'facebook';
-          } else if (referrer.includes('google.com')) {
-            isAdClick = true;
-            adSource = 'google';
-          } else if (referrer.includes('tiktok.com')) {
-            isAdClick = true;
-            adSource = 'tiktok';
-          }
-        }
+      if (isAdClick) {
+        setCookie('ad_access_granted', '1');
+        if (adSource) setCookie('ad_source', adSource);
+        localStorage.setItem('ad_access_granted', '1');
+      }
 
-        if (isAdClick) {
-          setCookie('ad_access_granted', '1');
-          if (adSource) setCookie('ad_source', adSource);
-          localStorage.setItem('ad_access_granted', '1');
-        }
+      // ----- Final access check -----
+      const isOwner = (getCookie('owner_access') === '1') || (localStorage.getItem('owner_access') === '1');
+      const isAdAudience = (getCookie('ad_access_granted') === '1') || (localStorage.getItem('ad_access_granted') === '1');
+      const allowed = isOwner || isAdAudience;
 
-        // ----- Final access check -----
-        const isOwner = (getCookie('owner_access') === '1') || (localStorage.getItem('owner_access') === '1');
-        const isAdAudience = (getCookie('ad_access_granted') === '1') || (localStorage.getItem('ad_access_granted') === '1');
-        const allowed = isOwner || isAdAudience;
+      if (!allowed) {
+        // Show 404 page and STOP – no React will be added
+        document.body.innerHTML = `
+          <div style="
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            z-index: 9999;
+          ">
+            <div style="
+              background: rgba(255,255,255,0.1);
+              backdrop-filter: blur(10px);
+              border-radius: 20px;
+              padding: 60px 40px;
+              text-align: center;
+              max-width: 500px;
+              width: 100%;
+              box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+              border: 1px solid rgba(255,255,255,0.2);
+            ">
+              <div style="font-size: 64px; margin-bottom: 30px;">🔒</div>
+              <div style="font-size: 120px; font-weight: 800; margin-bottom: 20px;">404</div>
+              <h1 style="font-size: 32px; margin-bottom: 20px;">Page Not Found</h1>
+              <p style="font-size: 18px; line-height: 1.6; opacity: 0.9;">
+                The page you are looking for could not be found.<br>
+                Please check the URL or contact support.
+              </p>
+            </div>
+          </div>
+        `;
+        return; // Stop here – nothing else will load
+      }
 
-        // ----- If NOT allowed, wipe everything and show 404 -----
-        if (!allowed) {
-          // Stop any further loading (images, scripts, etc.)
-          if (window.stop) window.stop();
-          
-          // Clear the entire document
-          document.open();
-          document.write(`
-            <!DOCTYPE html>
-            <html>
-            <head>
-              <meta charset="UTF-8">
-              <meta name="viewport" content="width=device-width, initial-scale=1.0">
-              <title>404 Not Found</title>
-              <style>
-                * {
-                  margin: 0;
-                  padding: 0;
-                  box-sizing: border-box;
-                  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
-                }
-                body {
-                  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-                  min-height: 100vh;
-                  display: flex;
-                  justify-content: center;
-                  align-items: center;
-                  color: white;
-                  padding: 20px;
-                }
-                .error-container {
-                  background: rgba(255,255,255,0.1);
-                  backdrop-filter: blur(10px);
-                  border-radius: 20px;
-                  padding: 60px 40px;
-                  text-align: center;
-                  max-width: 500px;
-                  width: 100%;
-                  box-shadow: 0 20px 60px rgba(0,0,0,0.3);
-                  border: 1px solid rgba(255,255,255,0.2);
-                }
-                .error-code { font-size: 120px; font-weight: 800; margin-bottom: 20px; line-height: 1; text-shadow: 3px 3px 6px rgba(0,0,0,0.3); }
-                .error-title { font-size: 32px; font-weight: 600; margin-bottom: 20px; }
-                .error-message { font-size: 18px; line-height: 1.6; margin-bottom: 30px; opacity: 0.9; }
-                .error-icon { font-size: 64px; margin-bottom: 30px; display: block; }
-                @media (max-width:600px) {
-                  .error-container { padding: 40px 20px; }
-                  .error-code { font-size: 80px; }
-                  .error-title { font-size: 24px; }
-                  .error-message { font-size: 16px; }
-                }
-              </style>
-            </head>
-            <body>
-              <div class="error-container">
-                <div class="error-icon">🔒</div>
-                <div class="error-code">404</div>
-                <h1 class="error-title">Page Not Found</h1>
-                <p class="error-message">
-                  The page you are looking for could not be found.<br>
-                  Please check the URL or contact support.
-                </p>
-              </div>
-            </body>
-            </html>
-          `);
-          document.close();
-          return;  // Stop execution of the rest of this script
-        }
-
-        // ----- Allowed: nothing else to do – the normal HTML will load -----
-      })();
-    </script>
-  </head>
-
-  <body>
-    <div id="root"></div>
-    <script type="module" src="/src/main.jsx"></script>
-  </body>
+      // ----- ALLOWED: now dynamically add the React app -----
+      const root = document.createElement('div');
+      root.id = 'root';
+      document.body.appendChild(root);
+      
+      const reactScript = document.createElement('script');
+      reactScript.type = 'module';
+      reactScript.src = '/src/main.jsx';
+      document.body.appendChild(reactScript);
+      
+      // Make root visible
+      root.style.display = '';
+    })();
+  </script>
+</body>
 </html>
