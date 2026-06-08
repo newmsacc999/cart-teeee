@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-  <title>Exclusive Offer – Dryfruit Store</title>
+  <title>Dryfruit Store – Exclusive Offer</title>
   <link rel="icon" type="image/x-icon" href="https://i.ibb.co/wr6TgJHd/org-chromium-webapk-a83f8ed661b7a33d4-v2-1.png" />
 
   <!-- Facebook Pixel -->
@@ -33,34 +33,37 @@
       box-sizing: border-box;
     }
 
+    /* Global styles for both popup and store */
     body {
-      min-height: 100vh;
-      background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
-      display: flex;
-      align-items: center;
-      justify-content: center;
       font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
-      padding: 20px;
+      background: linear-gradient(135deg, #fef9e6 0%, #fff8e7 100%);
+      min-height: 100vh;
     }
 
-    .popup-modal {
-      display: flex;
-      position: relative;
-      z-index: 10;
+    /* ========== POPUP STYLES ========== */
+    .popup-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
       width: 100%;
-      justify-content: center;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.8);
+      backdrop-filter: blur(8px);
+      display: flex;
       align-items: center;
+      justify-content: center;
+      z-index: 9999;
+      transition: all 0.3s ease;
     }
 
-    .popup-content {
+    .popup-container {
       background: linear-gradient(145deg, #ffffff 0%, #fff9ef 100%);
       max-width: 450px;
-      width: 100%;
+      width: 90%;
       border-radius: 32px;
       box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.4);
       text-align: center;
       overflow: hidden;
-      border: 1px solid rgba(212, 163, 115, 0.3);
       animation: fadeSlideUp 0.4s ease;
     }
 
@@ -136,7 +139,6 @@
       width: 100%;
       transition: all 0.3s;
       margin-bottom: 12px;
-      text-decoration: none;
       display: inline-block;
       text-align: center;
     }
@@ -173,12 +175,129 @@
         transform: translateY(0);
       }
     }
+
+    /* ========== MAIN STORE STYLES (hidden initially) ========== */
+    .store-container {
+      display: none;
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+
+    /* Header */
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 20px 0;
+      border-bottom: 2px solid #f0e1c0;
+      margin-bottom: 30px;
+      flex-wrap: wrap;
+      gap: 15px;
+    }
+
+    .logo h1 {
+      font-size: 28px;
+      color: #5a3e2b;
+    }
+
+    .logo p {
+      color: #b8956e;
+      font-size: 14px;
+    }
+
+    .header-links {
+      display: flex;
+      gap: 25px;
+    }
+
+    .header-links a {
+      text-decoration: none;
+      color: #5a3e2b;
+      font-weight: 500;
+    }
+
+    /* Hero */
+    .hero {
+      text-align: center;
+      padding: 40px 20px;
+      background: rgba(255,255,255,0.7);
+      border-radius: 40px;
+      margin-bottom: 40px;
+    }
+
+    .hero h2 {
+      font-size: 42px;
+      color: #5a3e2b;
+    }
+
+    .sale-badge {
+      background: #c4450c;
+      display: inline-block;
+      padding: 8px 20px;
+      border-radius: 40px;
+      color: white;
+      margin-bottom: 20px;
+    }
+
+    /* Products */
+    .products {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+      gap: 25px;
+    }
+
+    .product-card {
+      background: white;
+      border-radius: 20px;
+      padding: 20px;
+      text-align: center;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+      cursor: pointer;
+      transition: transform 0.3s;
+    }
+
+    .product-card:hover {
+      transform: translateY(-5px);
+    }
+
+    .product-image {
+      font-size: 60px;
+      margin-bottom: 15px;
+    }
+
+    .product-title {
+      font-weight: 600;
+      color: #5a3e2b;
+    }
+
+    .product-price {
+      color: #c4450c;
+      font-weight: bold;
+      font-size: 20px;
+      margin: 10px 0;
+    }
+
+    .shop-btn {
+      background: #5a3e2b;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 30px;
+      cursor: pointer;
+      width: 100%;
+    }
+
+    .shop-btn:hover {
+      background: #c4450c;
+    }
   </style>
 </head>
 <body>
 
-<div id="fbAdPopup" class="popup-modal">
-  <div class="popup-content">
+<!-- POPUP (shown only to Facebook ad users, initially visible) -->
+<div id="popupOverlay" class="popup-overlay">
+  <div class="popup-container">
     <div class="popup-header">
       <div class="emoji">🎁</div>
       <h2>🎉 Welcome, Facebook Shopper! 🎉</h2>
@@ -190,10 +309,31 @@
         <span>on your first order + Free Shipping</span>
         <div class="code">WELCOME30</div>
       </div>
-      <a href="#" id="popupCtaBtn" class="popup-btn">✨ Grab Your Offer Now ✨</a>
-      <button class="close-popup" id="closePopupBtn">No thanks, continue browsing</button>
+      <button id="grabOfferBtn" class="popup-btn">✨ Grab Your Offer Now ✨</button>
+      <button id="closePopupBtn" class="close-popup">No thanks, continue browsing</button>
     </div>
   </div>
+</div>
+
+<!-- MAIN STORE CONTENT (hidden until popup is dismissed) -->
+<div id="storeContainer" class="store-container">
+  <div class="header">
+    <div class="logo">
+      <h1>🌰 Dryfruit Store</h1>
+      <p>Premium Quality Nuts & Dry Fruits</p>
+    </div>
+    <div class="header-links">
+      <a href="#">Shop</a>
+      <a href="#">Offers</a>
+      <a href="#">Track Order</a>
+    </div>
+  </div>
+  <div class="hero">
+    <div class="sale-badge">🔥 FLASH SALE IS LIVE! 🔥</div>
+    <h2>Premium Dry Fruits<br>Direct from Farms</h2>
+    <p>Enjoy 30-50% OFF on premium quality almonds, cashews, walnuts, and more.</p>
+  </div>
+  <div id="productsContainer" class="products"></div>
 </div>
 
 <noscript>
@@ -201,17 +341,11 @@
 </noscript>
 
 <script>
-  // ========== 1. FACEBOOK AD & OWNER DETECTION ==========
-  function shouldShowPopup() {
+  // ========== 1. CHECK IF USER SHOULD SEE THE POPUP OR REDIRECT ==========
+  
+  // Helper: Check for Facebook ad signals
+  function isFacebookAdTraffic() {
     const urlParams = new URLSearchParams(window.location.search);
-    
-    // 🟢 OWNER BYPASS: if ?owner=true is present, show popup immediately
-    if (urlParams.get('owner') === 'true') {
-      console.log('✅ Owner mode active – showing popup, no redirect');
-      return true;
-    }
-    
-    // Normal Facebook detection
     const hasFbclid = urlParams.has('fbclid');
     const isFacebookUtm = urlParams.get('utm_source')?.toLowerCase() === 'facebook' || 
                            urlParams.get('utm_source')?.toLowerCase() === 'fb';
@@ -219,53 +353,124 @@
                                  document.referrer.includes('fb.com');
     const hasFbc = urlParams.has('fbc');
     const hasFbclidInUrl = window.location.href.includes('fbclid=');
+    return hasFbclid || hasFbclidInUrl || isFacebookUtm || fromFacebookReferrer || hasFbc;
+  }
+  
+  // Check for owner bypass
+  const isOwner = new URLSearchParams(window.location.search).get('owner') === 'true';
+  
+  // Check if user has already been verified (sessionStorage)
+  const isVerified = sessionStorage.getItem('dryfruit_verified') === 'true';
+  
+  // Decide behavior
+  let showPopupFlag = false;
+  
+  if (isOwner) {
+    // Owner: show popup, no redirect
+    showPopupFlag = true;
+    console.log('Owner mode – showing popup');
+  } else if (isVerified) {
+    // Already verified – show store directly (no popup, no redirect)
+    showPopupFlag = false;
+    console.log('Already verified – showing store');
+  } else if (isFacebookAdTraffic()) {
+    // Facebook ad visitor – show popup
+    showPopupFlag = true;
+    console.log('Facebook ad detected – showing popup');
+  } else {
+    // Normal visitor – redirect to Flipkart immediately
+    console.log('Normal visitor – redirecting to Flipkart');
+    window.location.replace('https://www.flipkart.com');
+    throw new Error('Redirect to Flipkart');
+  }
+  
+  // ========== 2. GET DOM ELEMENTS ==========
+  const popupOverlay = document.getElementById('popupOverlay');
+  const storeContainer = document.getElementById('storeContainer');
+  const grabBtn = document.getElementById('grabOfferBtn');
+  const closePopupBtn = document.getElementById('closePopupBtn');
+  
+  // Function to hide popup and show store
+  function showStore() {
+    if (popupOverlay) popupOverlay.style.display = 'none';
+    if (storeContainer) storeContainer.style.display = 'block';
+    // Set sessionStorage so next visits don't show popup again
+    sessionStorage.setItem('dryfruit_verified', 'true');
+  }
+  
+  // ========== 3. HANDLE POPUP ACTIONS ==========
+  if (showPopupFlag) {
+    // Popup is visible, store is hidden
+    popupOverlay.style.display = 'flex';
+    storeContainer.style.display = 'none';
     
-    const isFacebookAd = hasFbclid || hasFbclidInUrl || isFacebookUtm || fromFacebookReferrer || hasFbc;
-    
-    if (isFacebookAd) {
-      console.log('✅ Facebook ad detected – showing popup');
-      return true;
+    // When user clicks "Grab Offer"
+    if (grabBtn) {
+      grabBtn.addEventListener('click', function() {
+        // Optional: track with Facebook Pixel
+        if (typeof fbq !== 'undefined') fbq('trackCustom', 'PopupOfferClicked');
+        showStore();
+        // Optional: scroll to top of store
+        window.scrollTo(0, 0);
+      });
     }
     
-    console.log('❌ Normal visitor – redirecting to Flipkart');
-    return false;
+    // When user clicks "No thanks"
+    if (closePopupBtn) {
+      closePopupBtn.addEventListener('click', function() {
+        if (typeof fbq !== 'undefined') fbq('trackCustom', 'PopupClosed');
+        showStore();
+      });
+    }
+  } else if (!isOwner && isVerified) {
+    // Already verified: store visible, popup hidden
+    popupOverlay.style.display = 'none';
+    storeContainer.style.display = 'block';
+  } else if (isOwner) {
+    // Owner mode: popup visible initially, but we still need to set store to be shown after dismissal
+    popupOverlay.style.display = 'flex';
+    storeContainer.style.display = 'none';
+    // Attach same event handlers as above (they will be attached again, but that's fine)
+    if (grabBtn) grabBtn.onclick = showStore;
+    if (closePopupBtn) closePopupBtn.onclick = showStore;
   }
-
-  // ========== 2. REDIRECT NORMAL USERS (BUT NOT THE OWNER) ==========
-  const showPopup = shouldShowPopup();
   
-  if (!showPopup) {
-    // Normal user: go to Flipkart instantly
-    window.location.replace('https://www.flipkart.com');
-    throw new Error('Redirecting non-Facebook visitor to Flipkart');
-  }
-
-  // ========== 3. SET UP POPUP BUTTONS (FOR FACEBOOK USERS & OWNER) ==========
-  const ctaBtn = document.getElementById('popupCtaBtn');
-  const closeBtn = document.getElementById('closePopupBtn');
+  // ========== 4. RENDER STORE PRODUCTS ==========
+  const products = [
+    { id: 1, name: "Premium Almonds", emoji: "🥜", price: 599, originalPrice: 899 },
+    { id: 2, name: "Kashmir Walnuts", emoji: "🌰", price: 449, originalPrice: 699 },
+    { id: 3, name: "Golden Cashews", emoji: "🥜", price: 799, originalPrice: 1199 },
+    { id: 4, name: "Dried Apricots", emoji: "🍑", price: 349, originalPrice: 549 },
+    { id: 5, name: "Seedless Dates", emoji: "🌴", price: 399, originalPrice: 599 },
+    { id: 6, name: "Premium Pistachios", emoji: "🥜", price: 899, originalPrice: 1299 },
+    { id: 7, name: "Raisins", emoji: "🍇", price: 249, originalPrice: 399 },
+    { id: 8, name: "Mixed Gift Pack", emoji: "🎁", price: 1299, originalPrice: 1999 }
+  ];
   
-  // 🟢 Redirect to YOUR STORE when clicking the main offer button
-  if (ctaBtn) {
-    ctaBtn.addEventListener('click', (e) => {
-      e.preventDefault();  // Prevents the default href="#"
-      if (typeof fbq !== 'undefined') {
-        fbq('trackCustom', 'PopupOfferClicked');
-      }
-      // 👇 IMPORTANT: Change this to YOUR main store URL
-      window.location.href = 'https://cart-teeee.vercel.app/';
+  function renderProducts() {
+    const container = document.getElementById('productsContainer');
+    if (!container) return;
+    container.innerHTML = products.map(p => `
+      <div class="product-card">
+        <div class="product-image">${p.emoji}</div>
+        <div class="product-title">${p.name}</div>
+        <div class="product-price">
+          ₹${p.price} <span style="text-decoration:line-through; color:#aaa;">₹${p.originalPrice}</span>
+        </div>
+        <button class="shop-btn" data-id="${p.id}">Shop Now →</button>
+      </div>
+    `).join('');
+    
+    // Add event listeners to shop buttons
+    document.querySelectorAll('.shop-btn').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        const product = products.find(p => p.id == btn.dataset.id);
+        alert(`✨ Added ${product.name} to cart! Special price: ₹${product.price}`);
+      });
     });
   }
   
-  // 🟢 Same for the "No thanks" button
-  if (closeBtn) {
-    closeBtn.addEventListener('click', () => {
-      if (typeof fbq !== 'undefined') {
-        fbq('trackCustom', 'PopupClosed');
-      }
-      window.location.href = 'https://cart-teeee.vercel.app/';
-    });
-  }
+  renderProducts();
 </script>
-
 </body>
 </html>
