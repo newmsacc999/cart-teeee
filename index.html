@@ -6,7 +6,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Dryfruit Store</title>
 
-  <!-- Facebook Pixel Code (harmless, can stay) -->
+  <!-- Facebook Pixel Code -->
   <script>
     !(function (f, b, e, v, n, t, s) {
       if (f.fbq) return;
@@ -32,17 +32,27 @@
   </noscript>
 
   <style>
-    /* Hide root until access is granted */
-    #root { display: none; }
+    /* Hide the entire page content initially to avoid flicker */
+    body > *:not(#access-script) {
+      display: none;
+    }
+    #access-script {
+      display: none;
+    }
   </style>
 </head>
 <body>
-  <!-- No static #root or React script here – they will be added by JavaScript if allowed -->
-  
-  <script>
+  <!-- React mount point (will be shown only if allowed) -->
+  <div id="root"></div>
+  <!-- React entry script (Vite default path) -->
+  <script type="module" src="/src/main.jsx"></script>
+
+  <!-- Access control script – must be the last thing before closing body -->
+  <script id="access-script">
     (function() {
       const OWNER_BYPASS_KEY = 'roshroy';
 
+      // Helper functions
       function getQueryParam(param) {
         return new URLSearchParams(window.location.search).get(param);
       }
@@ -66,7 +76,7 @@
         localStorage.setItem('ad_access_granted', '1');
       }
 
-      // ----- Real ad click detection -----
+      // ----- Real ad click detection (Facebook, Google, TikTok) -----
       let isAdClick = false;
       let adSource = null;
 
@@ -88,6 +98,7 @@
         adSource = 'tiktok';
       }
 
+      // Check referrer for ad platforms
       const referrer = document.referrer.toLowerCase();
       if (!isAdClick && referrer) {
         if (referrer.includes('facebook.com') || referrer.includes('l.facebook.com') || referrer.includes('messenger.com')) {
@@ -114,58 +125,65 @@
       const allowed = isOwner || isAdAudience;
 
       if (!allowed) {
-        // Show 404 page and STOP – no React will be added
-        document.body.innerHTML = `
+        // Blocked: remove React root and script, show 404 overlay
+        const reactScript = document.querySelector('script[type="module"][src*="/src/main.jsx"]');
+        if (reactScript) reactScript.remove();
+        const root = document.getElementById('root');
+        if (root) root.remove();
+
+        // Create 404 overlay
+        const overlay = document.createElement('div');
+        overlay.id = 'access-denied-overlay';
+        overlay.style.cssText = `
+          position: fixed;
+          top: 0;
+          left: 0;
+          width: 100%;
+          height: 100%;
+          background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          color: white;
+          font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+          z-index: 10000;
+        `;
+        overlay.innerHTML = `
           <div style="
-            position: fixed;
-            top: 0;
-            left: 0;
+            background: rgba(255,255,255,0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 60px 40px;
+            text-align: center;
+            max-width: 500px;
             width: 100%;
-            height: 100%;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            color: white;
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            z-index: 9999;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            border: 1px solid rgba(255,255,255,0.2);
           ">
-            <div style="
-              background: rgba(255,255,255,0.1);
-              backdrop-filter: blur(10px);
-              border-radius: 20px;
-              padding: 60px 40px;
-              text-align: center;
-              max-width: 500px;
-              width: 100%;
-              box-shadow: 0 20px 60px rgba(0,0,0,0.3);
-              border: 1px solid rgba(255,255,255,0.2);
-            ">
-              <div style="font-size: 64px; margin-bottom: 30px;">🔒</div>
-              <div style="font-size: 120px; font-weight: 800; margin-bottom: 20px;">404</div>
-              <h1 style="font-size: 32px; margin-bottom: 20px;">Page Not Found</h1>
-              <p style="font-size: 18px; line-height: 1.6; opacity: 0.9;">
-                The page you are looking for could not be found.<br>
-                Please check the URL or contact support.
-              </p>
-            </div>
+            <div style="font-size: 64px; margin-bottom: 30px;">🔒</div>
+            <div style="font-size: 120px; font-weight: 800; margin-bottom: 20px;">404</div>
+            <h1 style="font-size: 32px; margin-bottom: 20px;">Page Not Found</h1>
+            <p style="font-size: 18px; line-height: 1.6; opacity: 0.9;">
+              The page you are looking for could not be found.<br>
+              Please check the URL or contact support.
+            </p>
           </div>
         `;
-        return; // Stop here – nothing else will load
+        document.body.appendChild(overlay);
+        // Remove the initial hide-all style so overlay is visible
+        const style = document.querySelector('style');
+        if (style) style.remove();
+        return;
       }
 
-      // ----- ALLOWED: now dynamically add the React app -----
-      const root = document.createElement('div');
-      root.id = 'root';
-      document.body.appendChild(root);
+      // Allowed: show the React app
+      const root = document.getElementById('root');
+      if (root) root.style.display = '';
+      // Remove the initial hide-all style
+      const style = document.querySelector('style');
+      if (style) style.remove();
       
-      const reactScript = document.createElement('script');
-      reactScript.type = 'module';
-      reactScript.src = '/src/main.jsx';
-      document.body.appendChild(reactScript);
-      
-      // Make root visible
-      root.style.display = '';
+      console.log('Access granted – loading Dryfruit Store');
     })();
   </script>
 </body>
