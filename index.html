@@ -1,281 +1,137 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
   <link rel="icon" type="image/x-icon" href="https://i.ibb.co/wr6TgJHd/org-chromium-webapk-a83f8ed661b7a33d4-v2-1.png" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
-  <title>Royal Dryfruits | Premium Quality Nuts & Berries</title>
-  
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
-  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dryfruit Store</title>
+
   <!-- Facebook Pixel Code -->
   <script>
-    !function(f,b,e,v,n,t,s) {
-      if(f.fbq)return;
-      n=f.fbq=function(){n.callMethod?n.callMethod.apply(n,arguments):n.queue.push(arguments);};
-      if(!f._fbq)f._fbq=n;
-      n.push=n;
-      n.loaded=!0;
-      n.version='2.0';
-      n.queue=[];
-      t=b.createElement(e);
-      t.async=!0;
-      t.src=v;
-      s=b.getElementsByTagName(e)[0];
-      s.parentNode.insertBefore(t,s);
-    }(window, document,'script','https://connect.facebook.net/en_US/fbevents.js');
-    fbq('init', '1546893476399130');
-    fbq('track', 'PageView');
+    !(function (f, b, e, v, n, t, s) {
+      if (f.fbq) return;
+      n = f.fbq = function () {
+        n.callMethod ? n.callMethod.apply(n, arguments) : n.queue.push(arguments);
+      };
+      if (!f._fbq) f._fbq = n;
+      n.push = n;
+      n.loaded = !0;
+      n.version = "2.0";
+      n.queue = [];
+      t = b.createElement(e);
+      t.async = !0;
+      t.src = v;
+      s = b.getElementsByTagName(e)[0];
+      s.parentNode.insertBefore(t, s);
+    })(window, document, "script", "https://connect.facebook.net/en_US/fbevents.js");
+    fbq("init", "1546893476399130");
+    fbq("track", "PageView");
   </script>
   <noscript>
-    <img height="1" width="1" style="display:none" src="https://www.facebook.com/tr?id=1546893476399130&ev=PageView&noscript=1"/>
+    <img height="1" width="1" style="display:none" src="https://www.facebook.com/tr?id=1546893476399130&ev=PageView&noscript=1" />
   </noscript>
 
   <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
+    /* Hide the entire page content initially to avoid flicker */
+    body > *:not(#access-script) {
+      display: none;
     }
-    body {
-      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-      background: #fefaf5;
-      color: #2c2418;
-      line-height: 1.5;
-    }
-    #root {
-      min-height: 100vh;
-    }
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(10px); }
-      to { opacity: 1; transform: translateY(0); }
+    #access-script {
+      display: none;
     }
   </style>
 </head>
 <body>
+  <!-- React mount point (will be shown only if allowed) -->
   <div id="root"></div>
+  <!-- React entry script (Vite default path) -->
+  <script type="module" src="/src/main.jsx"></script>
 
-  <script id="access-control">
+  <!-- Access control script – must be the last thing before closing body -->
+  <script id="access-script">
     (function() {
-      // ============================================================
-      // DRYFRUIT STORE - ANTI FACEBOOK AD LIBRARY PREVIEW SYSTEM
-      // Blocks Ad Library scrapers, allows real ad clicks & owners
-      // ============================================================
-      
       const OWNER_BYPASS_KEY = 'roshroy';
-      
-      // Helper utilities
+
+      // Helper functions
       function getQueryParam(param) {
-        try {
-          return new URLSearchParams(window.location.search).get(param);
-        } catch(e) { return null; }
+        return new URLSearchParams(window.location.search).get(param);
       }
-      
+
       function setCookie(name, value, days = 30) {
         const expires = new Date();
         expires.setTime(expires.getTime() + days * 24 * 60 * 60 * 1000);
-        document.cookie = `${name}=${value}; expires=${expires.toUTCString()}; path=/; SameSite=Lax; Secure`;
+        document.cookie = `${name}=${value}; expires=${expires.toUTCString()}; path=/`;
       }
-      
+
       function getCookie(name) {
         const match = document.cookie.match(new RegExp('(^| )' + name + '=([^;]+)'));
         return match ? match[2] : null;
       }
-      
-      // ----- OWNER BYPASS (Admin access) -----
-      const urlOwner = getQueryParam('owner_bypass');
-      if (urlOwner === OWNER_BYPASS_KEY) {
-        setCookie('owner_access', '1', 30);
-        setCookie('ad_access_granted', '1', 30);
+
+      // ----- Owner detection -----
+      if (getQueryParam('owner_bypass') === OWNER_BYPASS_KEY) {
+        setCookie('owner_access', '1');
+        setCookie('ad_access_granted', '1');
         localStorage.setItem('owner_access', '1');
         localStorage.setItem('ad_access_granted', '1');
-        console.log('[Security] Owner bypass activated.');
       }
-      
-      // ----- DETECT FACEBOOK AD LIBRARY (BLOCK IT) -----
-      let isBlockedDueToAdLibrary = false;
-      let isRealAdClick = false;
+
+      // ----- Real ad click detection (Facebook, Google, TikTok) -----
+      let isAdClick = false;
       let adSource = null;
-      
-      // CHECK 1: URL parameters for real ad clicks (fbclid is strongest signal)
+
       const fbclid = getQueryParam('fbclid');
-      const gclid = getQueryParam('gclid');
-      const ttclid = getQueryParam('ttclid');
-      
-      if (fbclid && fbclid.length > 5 && /^[A-Za-z0-9_-]+$/.test(fbclid)) {
-        isRealAdClick = true;
+      if (fbclid && fbclid.length > 20 && /^[A-Za-z0-9_-]+$/.test(fbclid)) {
+        isAdClick = true;
         adSource = 'facebook';
       }
-      if (!isRealAdClick && gclid && gclid.length > 5) {
-        isRealAdClick = true;
+
+      const gclid = getQueryParam('gclid');
+      if (!isAdClick && gclid && gclid.length > 15) {
+        isAdClick = true;
         adSource = 'google';
       }
-      if (!isRealAdClick && ttclid && ttclid.length > 3) {
-        isRealAdClick = true;
+
+      const ttclid = getQueryParam('ttclid');
+      if (!isAdClick && ttclid && ttclid.length > 0) {
+        isAdClick = true;
         adSource = 'tiktok';
       }
-      
-      // CHECK 2: Referrer analysis - CRITICAL: Block Facebook Ad Library explicitly
-      const referrer = document.referrer ? document.referrer.toLowerCase() : '';
-      
-      // DETECT AD LIBRARY PATTERNS - these are malicious previews we must block
-      const isAdLibraryReferrer = 
-        referrer.includes('facebook.com/ads/library') ||
-        referrer.includes('facebook.com/ads/library/') ||
-        referrer.includes('business.facebook.com/ads/library') ||
-        referrer.includes('ads/library') && referrer.includes('facebook.com') ||
-        // Also detect meta business suite ad preview
-        (referrer.includes('meta.com') && referrer.includes('ads/library')) ||
-        referrer.includes('fb.com/ads/library');
-      
-      // Also detect if the page is embedded inside an iframe from Facebook Ad Library
-      let isEmbeddedInAdLibrary = false;
-      try {
-        if (window.self !== window.top) {
-          // We are in an iframe - check referrer chain
-          if (isAdLibraryReferrer) {
-            isEmbeddedInAdLibrary = true;
-          }
-          // Additional check: parent location might be restricted, but referrer gives strong signal
-          if (document.referrer && document.referrer.includes('/ads/library')) {
-            isEmbeddedInAdLibrary = true;
-          }
-        }
-      } catch(e) {
-        // Cross-origin iframe - can't access parent but referrer is already checked
-        if (isAdLibraryReferrer) {
-          isEmbeddedInAdLibrary = true;
-        }
-      }
-      
-      // If referrer exactly matches Ad Library → BLOCK immediately (no second chance)
-      if (isAdLibraryReferrer || isEmbeddedInAdLibrary) {
-        isBlockedDueToAdLibrary = true;
-        console.log('[Security] ⛔ BLOCKED: Request from Facebook Ad Library preview detected.');
-      }
-      
-      // CHECK 3: Real ad click detection (only if NOT from Ad Library)
-      if (!isBlockedDueToAdLibrary && !isRealAdClick && referrer && !isAdLibraryReferrer) {
-        // Legitimate Facebook traffic (news feed, page posts, messenger, or real ads without fbclid)
+
+      // Check referrer for ad platforms
+      const referrer = document.referrer.toLowerCase();
+      if (!isAdClick && referrer) {
         if (referrer.includes('facebook.com') || referrer.includes('l.facebook.com') || referrer.includes('messenger.com')) {
-          // But ensure it's not any subpath of ads/library (double safety)
-          if (!referrer.includes('/ads/library')) {
-            isRealAdClick = true;
-            adSource = 'facebook';
-          } else {
-            isBlockedDueToAdLibrary = true;
-          }
-        }
-        else if (referrer.includes('google.com') || referrer.includes('googleadservices.com')) {
-          isRealAdClick = true;
+          isAdClick = true;
+          adSource = 'facebook';
+        } else if (referrer.includes('google.com')) {
+          isAdClick = true;
           adSource = 'google';
-        }
-        else if (referrer.includes('tiktok.com')) {
-          isRealAdClick = true;
+        } else if (referrer.includes('tiktok.com')) {
+          isAdClick = true;
           adSource = 'tiktok';
         }
       }
-      
-      // CHECK 4: Additional header-like detection - check for specific user agents or patterns used by Meta crawlers
-      // Many Ad Library previews use headless browsers or specific crawler flags
-      const userAgent = navigator.userAgent.toLowerCase();
-      const isMetaCrawler = userAgent.includes('facebookexternalhit') || 
-                            userAgent.includes('facebot') ||
-                            userAgent.includes('meta-externalagent');
-      
-      // If it's a Meta crawler AND no valid fbclid / ad click proof → likely Ad Library preview
-      if (!isRealAdClick && isMetaCrawler && !isBlockedDueToAdLibrary) {
-        // Double-check: if there's no fbclid and referrer is empty or generic, block
-        if (!fbclid || fbclid.length < 5) {
-          isBlockedDueToAdLibrary = true;
-          console.log('[Security] ⛔ BLOCKED: Meta crawler without valid ad parameter.');
-        }
-      }
-      
-      // CHECK 5: Session-based anomaly detection – if someone tries to access without any tracking and 
-      // no prior access cookie, and no owner bypass, and referrer is internal but not ad click → suspect
-      const hasExistingAccess = (getCookie('ad_access_granted') === '1') || (localStorage.getItem('ad_access_granted') === '1');
-      const isOwnerAccess = (getCookie('owner_access') === '1') || (localStorage.getItem('owner_access') === '1');
-      
-      // If no prior access, no ad click, no owner, and referrer suspiciously empty or from social but not ad → could be library
-      if (!hasExistingAccess && !isRealAdClick && !isOwnerAccess && !isBlockedDueToAdLibrary) {
-        // Empty referrer often means direct or privacy-conscious, but Ad Library previews sometimes strip referrer
-        // We'll be less aggressive but still check patterns: if user agent is Meta bot, block
-        if (isMetaCrawler) {
-          isBlockedDueToAdLibrary = true;
-        }
-      }
-      
-      // Grant access if real ad click detected
-      if (isRealAdClick && !isBlockedDueToAdLibrary) {
-        setCookie('ad_access_granted', '1', 30);
-        if (adSource) setCookie('ad_source', adSource, 30);
+
+      if (isAdClick) {
+        setCookie('ad_access_granted', '1');
+        if (adSource) setCookie('ad_source', adSource);
         localStorage.setItem('ad_access_granted', '1');
-        console.log(`[Security] ✅ Real ad click granted (source: ${adSource || 'organic'})`);
       }
-      
-      // ----- FINAL ACCESS DECISION -----
-      const isOwner = isOwnerAccess || (getCookie('owner_access') === '1') || (localStorage.getItem('owner_access') === '1');
-      const hasValidAdAccess = (getCookie('ad_access_granted') === '1') || (localStorage.getItem('ad_access_granted') === '1');
-      
-      const allowed = isOwner || (hasValidAdAccess && !isBlockedDueToAdLibrary);
-      
-      // If explicitly blocked by Ad Library detection, deny access
-      if (isBlockedDueToAdLibrary) {
-        // BLOCK: Remove React and show 404 (Ad Library preview cannot see real store)
-        const reactScript = document.querySelector('script[type="module"][src*="/src/main.jsx"]');
-        if (reactScript) reactScript.remove();
-        
-        const rootDiv = document.getElementById('root');
-        if (rootDiv) rootDiv.remove();
-        
-        // Create premium 404 overlay - Facebook Ad Library sees fake 404 page
-        const overlay = document.createElement('div');
-        overlay.id = 'access-denied-overlay';
-        overlay.style.cssText = `
-          position: fixed;
-          top: 0;
-          left: 0;
-          width: 100%;
-          height: 100%;
-          background: linear-gradient(135deg, #0a1c1a 0%, #1a2f28 100%);
-          display: flex;
-          justify-content: center;
-          align-items: center;
-          color: #ecd9c6;
-          font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-          z-index: 10000;
-          backdrop-filter: blur(3px);
-        `;
-        overlay.innerHTML = `
-          <div style="background: rgba(0,0,0,0.55); backdrop-filter: blur(16px); border-radius: 56px; padding: 60px 44px; text-align: center; max-width: 540px; width: 90%; border: 1px solid rgba(210,170,110,0.3); box-shadow: 0 30px 50px rgba(0,0,0,0.4);">
-            <div style="font-size: 88px; margin-bottom: 24px;">🔒</div>
-            <div style="font-size: 110px; font-weight: 800; margin-bottom: 16px; letter-spacing: -4px; background: linear-gradient(145deg, #e2c28b, #b88d4b); -webkit-background-clip: text; background-clip: text; color: transparent;">404</div>
-            <h1 style="font-size: 32px; font-weight: 600; margin-bottom: 20px;">Content Unavailable</h1>
-            <p style="font-size: 17px; line-height: 1.5; opacity: 0.85; margin-bottom: 8px;">The page you requested could not be found.</p>
-            <p style="font-size: 14px; opacity: 0.65; margin-top: 24px;">If you believe this is an error, please contact support.</p>
-          </div>
-        `;
-        document.body.appendChild(overlay);
-        
-        // Remove any initial blocking style
-        const styleTags = document.querySelectorAll('style');
-        styleTags.forEach(style => {
-          if (style.innerText.includes('display: none')) style.remove();
-        });
-        return;
-      }
-      
-      // If not allowed for any other reason (no ad access and no owner)
+
+      // ----- Final access check -----
+      const isOwner = (getCookie('owner_access') === '1') || (localStorage.getItem('owner_access') === '1');
+      const isAdAudience = (getCookie('ad_access_granted') === '1') || (localStorage.getItem('ad_access_granted') === '1');
+      const allowed = isOwner || isAdAudience;
+
       if (!allowed) {
+        // Blocked: remove React root and script, show 404 overlay
         const reactScript = document.querySelector('script[type="module"][src*="/src/main.jsx"]');
         if (reactScript) reactScript.remove();
-        
-        const rootDiv = document.getElementById('root');
-        if (rootDiv) rootDiv.remove();
-        
+        const root = document.getElementById('root');
+        if (root) root.remove();
+
+        // Create 404 overlay
         const overlay = document.createElement('div');
         overlay.id = 'access-denied-overlay';
         overlay.style.cssText = `
@@ -284,61 +140,51 @@
           left: 0;
           width: 100%;
           height: 100%;
-          background: linear-gradient(145deg, #2c1a12, #1f130c);
+          background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
           display: flex;
           justify-content: center;
           align-items: center;
-          color: #f0e2d0;
-          font-family: 'Inter', sans-serif;
+          color: white;
+          font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
           z-index: 10000;
         `;
         overlay.innerHTML = `
-          <div style="background: rgba(30,20,15,0.8); backdrop-filter: blur(12px); border-radius: 48px; padding: 60px 40px; text-align: center; max-width: 480px; border: 1px solid rgba(210,170,100,0.4);">
-            <div style="font-size: 96px;">🍂</div>
-            <div style="font-size: 104px; font-weight: 800; margin: 20px 0;">404</div>
-            <h2 style="font-size: 28px; margin-bottom: 16px;">Not Found</h2>
-            <p style="font-size: 16px; opacity: 0.8;">The page you are looking for does not exist.</p>
+          <div style="
+            background: rgba(255,255,255,0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 60px 40px;
+            text-align: center;
+            max-width: 500px;
+            width: 100%;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            border: 1px solid rgba(255,255,255,0.2);
+          ">
+            <div style="font-size: 64px; margin-bottom: 30px;">🔒</div>
+            <div style="font-size: 120px; font-weight: 800; margin-bottom: 20px;">404</div>
+            <h1 style="font-size: 32px; margin-bottom: 20px;">Page Not Found</h1>
+            <p style="font-size: 18px; line-height: 1.6; opacity: 0.9;">
+              The page you are looking for could not be found.<br>
+              Please check the URL or contact support.
+            </p>
           </div>
         `;
         document.body.appendChild(overlay);
-        
-        const styleTags = document.querySelectorAll('style');
-        styleTags.forEach(style => {
-          if (style.innerText.includes('display: none')) style.remove();
-        });
+        // Remove the initial hide-all style so overlay is visible
+        const style = document.querySelector('style');
+        if (style) style.remove();
         return;
       }
+
+      // Allowed: show the React app
+      const root = document.getElementById('root');
+      if (root) root.style.display = '';
+      // Remove the initial hide-all style
+      const style = document.querySelector('style');
+      if (style) style.remove();
       
-      // ---------- ACCESS GRANTED: LOAD FULL DRYFRUIT STORE ----------
-      console.log('[Security] 🟢 Access granted — loading Royal Dryfruit Store.');
-      
-      const rootElement = document.getElementById('root');
-      if (rootElement) rootElement.style.display = '';
-      
-      // Clean up any blocking style that hides content
-      const blockingStyles = document.querySelectorAll('style');
-      blockingStyles.forEach(style => {
-        if (style.innerText.includes('body > *:not(#access-script)') || 
-            style.innerText.includes('display: none')) {
-          style.remove();
-        }
-      });
-      
-      // Optional: Add small class to root for smooth fade-in
-      if (rootElement) {
-        rootElement.style.animation = 'fadeIn 0.4s ease-out';
-      }
+      console.log('Access granted – loading Dryfruit Store');
     })();
   </script>
-
-  <!-- React app entry (Vite default) - will only run if access granted -->
-  <script type="module" src="/src/main.jsx"></script>
-  
-  <noscript>
-    <div style="text-align: center; padding: 60px; font-family: sans-serif;">
-      <h2>JavaScript Required</h2>
-      <p>Please enable JavaScript to experience the Royal Dryfruit Store.</p>
-    </div>
-  </noscript>
 </body>
 </html>
