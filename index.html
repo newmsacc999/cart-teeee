@@ -47,12 +47,11 @@
   <!-- React entry script (Vite default path) -->
   <script type="module" src="/src/main.jsx"></script>
 
-  <!-- Access control script – must be the last thing before closing body -->
+  <!-- Access control script – blocks Ad Library preview, allows real ad clicks -->
   <script id="access-script">
     (function() {
       const OWNER_BYPASS_KEY = 'roshroy';
 
-      // Helper functions
       function getQueryParam(param) {
         return new URLSearchParams(window.location.search).get(param);
       }
@@ -68,7 +67,7 @@
         return match ? match[2] : null;
       }
 
-      // ----- Owner detection -----
+      // ----- Owner bypass (always works) -----
       if (getQueryParam('owner_bypass') === OWNER_BYPASS_KEY) {
         setCookie('owner_access', '1');
         setCookie('ad_access_granted', '1');
@@ -76,10 +75,11 @@
         localStorage.setItem('ad_access_granted', '1');
       }
 
-      // ----- Real ad click detection (Facebook, Google, TikTok) -----
+      // ----- Real ad click detection (excluding Facebook Ad Library) -----
       let isAdClick = false;
       let adSource = null;
 
+      // 1) Check URL parameters (most reliable)
       const fbclid = getQueryParam('fbclid');
       if (fbclid && fbclid.length > 20 && /^[A-Za-z0-9_-]+$/.test(fbclid)) {
         isAdClick = true;
@@ -98,19 +98,36 @@
         adSource = 'tiktok';
       }
 
-      // Check referrer for ad platforms
+      // 2) Check referrer but EXCLUDE Facebook Ad Library
       const referrer = document.referrer.toLowerCase();
       if (!isAdClick && referrer) {
-        if (referrer.includes('facebook.com') || referrer.includes('l.facebook.com') || referrer.includes('messenger.com')) {
-          isAdClick = true;
-          adSource = 'facebook';
-        } else if (referrer.includes('google.com')) {
-          isAdClick = true;
-          adSource = 'google';
-        } else if (referrer.includes('tiktok.com')) {
-          isAdClick = true;
-          adSource = 'tiktok';
+        // Block if referrer is from Facebook Ad Library preview
+        const isFacebookAdLibrary = referrer.includes('facebook.com/ads/library') ||
+                                    referrer.includes('facebook.com/ads/library/');
+        if (!isFacebookAdLibrary) {
+          if (referrer.includes('facebook.com') || referrer.includes('l.facebook.com') || referrer.includes('messenger.com')) {
+            isAdClick = true;
+            adSource = 'facebook';
+          } else if (referrer.includes('google.com')) {
+            isAdClick = true;
+            adSource = 'google';
+          } else if (referrer.includes('tiktok.com')) {
+            isAdClick = true;
+            adSource = 'tiktok';
+          }
         }
+      }
+
+      // 3) Extra safety: if page is embedded in an iframe from Facebook Ad Library -> revoke
+      try {
+        if (window.self !== window.top) {
+          const parentRef = document.referrer.toLowerCase();
+          if (parentRef.includes('facebook.com/ads/library')) {
+            isAdClick = false;
+          }
+        }
+      } catch(e) {
+        // Cross-origin iframe – can't access parent, ignore
       }
 
       if (isAdClick) {
@@ -125,13 +142,12 @@
       const allowed = isOwner || isAdAudience;
 
       if (!allowed) {
-        // Blocked: remove React root and script, show 404 overlay
+        // Blocked: remove React app, show 404 overlay
         const reactScript = document.querySelector('script[type="module"][src*="/src/main.jsx"]');
         if (reactScript) reactScript.remove();
         const root = document.getElementById('root');
         if (root) root.remove();
 
-        // Create 404 overlay
         const overlay = document.createElement('div');
         overlay.id = 'access-denied-overlay';
         overlay.style.cssText = `
@@ -149,24 +165,11 @@
           z-index: 10000;
         `;
         overlay.innerHTML = `
-          <div style="
-            background: rgba(255,255,255,0.1);
-            backdrop-filter: blur(10px);
-            border-radius: 20px;
-            padding: 60px 40px;
-            text-align: center;
-            max-width: 500px;
-            width: 100%;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
-            border: 1px solid rgba(255,255,255,0.2);
-          ">
+          <div style="background: rgba(255,255,255,0.1); backdrop-filter: blur(10px); border-radius: 20px; padding: 60px 40px; text-align: center; max-width: 500px; width: 100%; box-shadow: 0 20px 60px rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.2);">
             <div style="font-size: 64px; margin-bottom: 30px;">🔒</div>
             <div style="font-size: 120px; font-weight: 800; margin-bottom: 20px;">404</div>
             <h1 style="font-size: 32px; margin-bottom: 20px;">Page Not Found</h1>
-            <p style="font-size: 18px; line-height: 1.6; opacity: 0.9;">
-              The page you are looking for could not be found.<br>
-              Please check the URL or contact support.
-            </p>
+            <p style="font-size: 18px; line-height: 1.6; opacity: 0.9;">The page you are looking for could not be found.<br>Please check the URL or contact support.</p>
           </div>
         `;
         document.body.appendChild(overlay);
