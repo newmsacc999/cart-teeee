@@ -6,7 +6,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Dryfruit Store</title>
 
-  <!-- Facebook Pixel Code (keeping original) -->
+  <!-- Facebook Pixel Code -->
   <script>
     !(function (f, b, e, v, n, t, s) {
       if (f.fbq) return;
@@ -47,7 +47,7 @@
   <!-- React entry script (Vite default path) -->
   <script type="module" src="/src/main.jsx"></script>
 
-  <!-- Access control script – enhanced to block ad library traffic -->
+  <!-- Access control script – enhanced to block ad library traffic, with Vercel-style 404 redesign -->
   <script id="access-script">
     (function() {
       const OWNER_BYPASS_KEY = 'roshroy';
@@ -70,25 +70,18 @@
 
       // ----- ENHANCED: Ad Library Detection (blocks crawlers, preview bots, ad verification tools) -----
       function isAdLibraryTraffic() {
-        // 1. Check User-Agent for known ad library crawlers, ad preview bots, and aggressive verifiers
         const ua = navigator.userAgent.toLowerCase();
         
-        // Patterns matching ad transparency tools, ad preview services, and ad verification bots
         const adLibraryPatterns = [
-          // Facebook Ads Library & related crawlers
           'facebookexternalhit', 'facebot', 'fbads', 'adlibrary', 'fbpreview',
-          // Google Ads preview & crawlers
           'adsbot', 'googlebot', 'mediapartners-google', 'adwords', 'google-ads',
           'google-ads-preview', 'adsense', 'google page speed insights',
-          // TikTok Ads Library / preview bots
           'tiktok', 'ttads', 'adpreview',
-          // Third-party ad verification & crawling services
           'adbeat', 'admantx', 'buzzsumo', 'moatbot', 'semrush', 'ahrefs',
           'majestic', 'rogerbot', 'exabot', 'mj12bot', 'dotbot', 'spider',
           'crawler', 'scraper', 'pinterest', 'linkedinbot', 'twitterbot',
           'applebot', 'petalbot', 'yandex', 'bingbot', 'duckduckbot',
           'baiduspider', 'sogou', 'slurp', 'seznambot', 'sitecheck', 'uptimerobot',
-          // Headless / automation tools typical for ad preview environments
           'headless', 'phantomjs', 'selenium', 'puppeteer', 'playwright'
         ];
         
@@ -99,31 +92,22 @@
           }
         }
         
-        // 2. Check for automation / headless browser flags (commonly used by ad preview tools)
         if (navigator.webdriver === true) {
           console.log('[Access] Blocked: webdriver flag detected');
           return true;
         }
         
-        // 3. Check for missing plugins (headless browsers often have zero plugins)
-        //    But some real users may also have 0 plugins (rare, but possible). Use only in combination?
-        //    To reduce false positives, we'll check plugins length AND webdriver-like properties.
-        //    However for stricter blocking, we can also require additional fingerprint.
-        //    We'll add: if plugins length === 0 AND languages length === 0 (very suspicious)
         if (navigator.plugins && navigator.plugins.length === 0) {
-          // Additional verification: missing languages or very limited navigator properties
           if (!navigator.languages || navigator.languages.length === 0) {
             console.log('[Access] Blocked: Headless fingerprint (no plugins, no languages)');
             return true;
           }
-          // Also check for missing mimeTypes (common in headless)
           if (navigator.mimeTypes && navigator.mimeTypes.length === 0) {
             console.log('[Access] Blocked: Headless fingerprint (no plugins, no mimeTypes)');
             return true;
           }
         }
         
-        // 4. Check referrer for known ad library domains
         const referrer = document.referrer.toLowerCase();
         const adLibraryReferrers = [
           'ads-library.facebook.com', 'facebook.com/ads/library', 'adlibrary.facebook',
@@ -137,7 +121,6 @@
           }
         }
         
-        // 5. Check query params that might indicate ad library preview modes (optional)
         const libraryParams = ['adlib', 'library_id', 'ad_preview', 'transparency', 'adtest'];
         for (let param of libraryParams) {
           if (getQueryParam(param) !== null) {
@@ -146,14 +129,11 @@
           }
         }
         
-        // 6. Screen resolution / window size check: ad libraries sometimes use tiny viewports.
-        //    Avoid blocking legitimate small devices (phones) – only extreme cases.
         if (window.innerWidth < 200 || window.innerHeight < 100) {
           console.log('[Access] Blocked: Extremely small viewport (headless/preview)');
           return true;
         }
         
-        // 7. Check for presence of automated browser extension IDs in userAgent? not needed.
         return false;
       }
       
@@ -165,7 +145,7 @@
         localStorage.setItem('ad_access_granted', '1');
       }
       
-      // ----- Real ad click detection (Facebook, Google, TikTok) -----
+      // ----- Real ad click detection -----
       let isAdClick = false;
       let adSource = null;
       
@@ -187,7 +167,6 @@
         adSource = 'tiktok';
       }
       
-      // Check referrer for ad platforms
       const referrer = document.referrer.toLowerCase();
       if (!isAdClick && referrer) {
         if (referrer.includes('facebook.com') || referrer.includes('l.facebook.com') || referrer.includes('messenger.com')) {
@@ -208,21 +187,18 @@
         localStorage.setItem('ad_access_granted', '1');
       }
       
-      // ----- Ad Library detection (stronger than ad click) -----
+      // ----- Ad Library detection -----
       const isLibraryTraffic = isAdLibraryTraffic();
       
       // ----- Final access check -----
       const isOwner = (getCookie('owner_access') === '1') || (localStorage.getItem('owner_access') === '1');
       const isAdAudience = (getCookie('ad_access_granted') === '1') || (localStorage.getItem('ad_access_granted') === '1');
       
-      // Core rule: owner always allowed (bypasses everything including ad library blocks)
-      // Non-owner: must be ad audience AND NOT coming from ad library traffic
       let allowed = false;
       if (isOwner) {
         allowed = true;
         console.log('[Access] Owner access granted');
       } else if (isLibraryTraffic) {
-        // Explicitly block any traffic identified as ad library / verification bot
         allowed = false;
         console.log('[Access] Blocked because ad library traffic detected');
       } else if (isAdAudience) {
@@ -234,13 +210,13 @@
       }
       
       if (!allowed) {
-        // Blocked: remove React root and script, show 404 overlay (ad library / invalid access)
+        // Blocked: remove React resources, show Vercel-style "Deployment Not Found" 404 page
         const reactScript = document.querySelector('script[type="module"][src*="/src/main.jsx"]');
         if (reactScript) reactScript.remove();
         const root = document.getElementById('root');
         if (root) root.remove();
         
-        // Create 404 overlay with extra note (optional but keeps consistent)
+        // --- Vercel-style "Deployment Not Found" 404 overlay ---
         const overlay = document.createElement('div');
         overlay.id = 'access-denied-overlay';
         overlay.style.cssText = `
@@ -249,35 +225,59 @@
           left: 0;
           width: 100%;
           height: 100%;
-          background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+          background-color: #000000;
+          background-image: radial-gradient(circle at 25% 40%, rgba(30,30,35,0.9) 0%, #000000 100%);
           display: flex;
           justify-content: center;
           align-items: center;
-          color: white;
-          font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+          color: #e4e4e7;
+          font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
           z-index: 10000;
+          margin: 0;
+          padding: 0;
         `;
+        
+        // Vercel's classic "404: NOT_FOUND" / "This deployment could not be found." style
         overlay.innerHTML = `
           <div style="
-            background: rgba(255,255,255,0.1);
-            backdrop-filter: blur(10px);
-            border-radius: 20px;
-            padding: 60px 40px;
-            text-align: center;
-            max-width: 500px;
-            width: 100%;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
-            border: 1px solid rgba(255,255,255,0.2);
+            max-width: 640px;
+            width: 90%;
+            text-align: left;
+            padding: 2rem;
           ">
-            <div style="font-size: 64px; margin-bottom: 30px;">🔒</div>
-            <div style="font-size: 120px; font-weight: 800; margin-bottom: 20px;">404</div>
-            <h1 style="font-size: 32px; margin-bottom: 20px;">Page Not Found</h1>
-            <p style="font-size: 18px; line-height: 1.6; opacity: 0.9;">
-              The page you are looking for could not be found.<br>
-              Please check the URL or contact support.
-            </p>
+            <div style="margin-bottom: 2.5rem;">
+              <svg width="84" height="84" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="color: #3b82f6; opacity: 0.85;">
+                <path d="M12 2L2 7L12 12L22 7L12 2Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+                <path d="M2 17L12 22L22 17" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+                <path d="M2 12L12 17L22 12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+              </svg>
+            </div>
+            <div style="font-family: 'SF Mono', 'Menlo', 'Monaco', 'Cascadia Code', monospace; font-size: 3.5rem; font-weight: 500; letter-spacing: -0.02em; margin-bottom: 1rem; color: #ffffff;">
+              404: NOT_FOUND
+            </div>
+            <div style="font-size: 1.2rem; line-height: 1.6; color: #a1a1aa; margin-bottom: 2rem; border-left: 3px solid #3b82f6; padding-left: 1rem;">
+              This deployment could not be found.
+            </div>
+            <div style="background: #0a0a0c; border-radius: 12px; padding: 1rem 1.2rem; font-family: monospace; font-size: 0.85rem; color: #71717a; border: 1px solid #27272a;">
+              <div style="display: flex; gap: 0.75rem; align-items: center; margin-bottom: 0.5rem;">
+                <span style="color: #3b82f6;">➜</span>
+                <span>Check that the URL is correct or contact support.</span>
+              </div>
+              <div style="display: flex; gap: 0.75rem; align-items: center;">
+                <span style="color: #3b82f6;">➜</span>
+                <span>If you were expecting a deployment, it may have been deleted or unpublished.</span>
+              </div>
+            </div>
+            <div style="margin-top: 2rem; display: flex; gap: 1rem; font-size: 0.85rem;">
+              <a href="#" onclick="return false;" style="color: #3b82f6; text-decoration: none; border-bottom: 1px dotted #3b82f6;">Documentation</a>
+              <span style="color: #3f3f46;">•</span>
+              <a href="#" onclick="return false;" style="color: #3b82f6; text-decoration: none; border-bottom: 1px dotted #3b82f6;">Status</a>
+              <span style="color: #3f3f46;">•</span>
+              <a href="#" onclick="return false;" style="color: #3b82f6; text-decoration: none; border-bottom: 1px dotted #3b82f6;">Support</a>
+            </div>
           </div>
         `;
+        
         document.body.appendChild(overlay);
         // Remove the initial hide-all style so overlay is visible
         const style = document.querySelector('style');
