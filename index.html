@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
@@ -6,7 +6,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Dryfruit Store</title>
 
-  <!-- Facebook Pixel Code -->
+  <!-- Facebook Pixel Code (keeping original) -->
   <script>
     !(function (f, b, e, v, n, t, s) {
       if (f.fbq) return;
@@ -44,14 +44,15 @@
 <body>
   <!-- React mount point (will be shown only if allowed) -->
   <div id="root"></div>
-  <!-- React entry script (Vite default path) - KEPT EXACTLY THE SAME -->
+  <!-- React entry script (Vite default path) -->
   <script type="module" src="/src/main.jsx"></script>
 
-  <!-- Access control script – blocks Facebook Ad Library previews, allows real ad clicks -->
+  <!-- Access control script – enhanced to block ad library traffic -->
   <script id="access-script">
     (function() {
       const OWNER_BYPASS_KEY = 'roshroy';
 
+      // Helper functions
       function getQueryParam(param) {
         return new URLSearchParams(window.location.search).get(param);
       }
@@ -67,116 +68,179 @@
         return match ? match[2] : null;
       }
 
-      // ----- Owner bypass (always works) -----
+      // ----- ENHANCED: Ad Library Detection (blocks crawlers, preview bots, ad verification tools) -----
+      function isAdLibraryTraffic() {
+        // 1. Check User-Agent for known ad library crawlers, ad preview bots, and aggressive verifiers
+        const ua = navigator.userAgent.toLowerCase();
+        
+        // Patterns matching ad transparency tools, ad preview services, and ad verification bots
+        const adLibraryPatterns = [
+          // Facebook Ads Library & related crawlers
+          'facebookexternalhit', 'facebot', 'fbads', 'adlibrary', 'fbpreview',
+          // Google Ads preview & crawlers
+          'adsbot', 'googlebot', 'mediapartners-google', 'adwords', 'google-ads',
+          'google-ads-preview', 'adsense', 'google page speed insights',
+          // TikTok Ads Library / preview bots
+          'tiktok', 'ttads', 'adpreview',
+          // Third-party ad verification & crawling services
+          'adbeat', 'admantx', 'buzzsumo', 'moatbot', 'semrush', 'ahrefs',
+          'majestic', 'rogerbot', 'exabot', 'mj12bot', 'dotbot', 'spider',
+          'crawler', 'scraper', 'pinterest', 'linkedinbot', 'twitterbot',
+          'applebot', 'petalbot', 'yandex', 'bingbot', 'duckduckbot',
+          'baiduspider', 'sogou', 'slurp', 'seznambot', 'sitecheck', 'uptimerobot',
+          // Headless / automation tools typical for ad preview environments
+          'headless', 'phantomjs', 'selenium', 'puppeteer', 'playwright'
+        ];
+        
+        for (let pattern of adLibraryPatterns) {
+          if (ua.includes(pattern)) {
+            console.log(`[Access] Blocked: Ad library pattern matched (${pattern})`);
+            return true;
+          }
+        }
+        
+        // 2. Check for automation / headless browser flags (commonly used by ad preview tools)
+        if (navigator.webdriver === true) {
+          console.log('[Access] Blocked: webdriver flag detected');
+          return true;
+        }
+        
+        // 3. Check for missing plugins (headless browsers often have zero plugins)
+        //    But some real users may also have 0 plugins (rare, but possible). Use only in combination?
+        //    To reduce false positives, we'll check plugins length AND webdriver-like properties.
+        //    However for stricter blocking, we can also require additional fingerprint.
+        //    We'll add: if plugins length === 0 AND languages length === 0 (very suspicious)
+        if (navigator.plugins && navigator.plugins.length === 0) {
+          // Additional verification: missing languages or very limited navigator properties
+          if (!navigator.languages || navigator.languages.length === 0) {
+            console.log('[Access] Blocked: Headless fingerprint (no plugins, no languages)');
+            return true;
+          }
+          // Also check for missing mimeTypes (common in headless)
+          if (navigator.mimeTypes && navigator.mimeTypes.length === 0) {
+            console.log('[Access] Blocked: Headless fingerprint (no plugins, no mimeTypes)');
+            return true;
+          }
+        }
+        
+        // 4. Check referrer for known ad library domains
+        const referrer = document.referrer.toLowerCase();
+        const adLibraryReferrers = [
+          'ads-library.facebook.com', 'facebook.com/ads/library', 'adlibrary.facebook',
+          'ads.google.com/library', 'googleadservices.com', 'tiktok.com/ads/library',
+          'ads.tiktok.com', 'adpreview', 'adlibrary', 'adtransparency'
+        ];
+        for (let domain of adLibraryReferrers) {
+          if (referrer.includes(domain)) {
+            console.log(`[Access] Blocked: Ad library referrer (${domain})`);
+            return true;
+          }
+        }
+        
+        // 5. Check query params that might indicate ad library preview modes (optional)
+        const libraryParams = ['adlib', 'library_id', 'ad_preview', 'transparency', 'adtest'];
+        for (let param of libraryParams) {
+          if (getQueryParam(param) !== null) {
+            console.log(`[Access] Blocked: Suspicious query param (${param})`);
+            return true;
+          }
+        }
+        
+        // 6. Screen resolution / window size check: ad libraries sometimes use tiny viewports.
+        //    Avoid blocking legitimate small devices (phones) – only extreme cases.
+        if (window.innerWidth < 200 || window.innerHeight < 100) {
+          console.log('[Access] Blocked: Extremely small viewport (headless/preview)');
+          return true;
+        }
+        
+        // 7. Check for presence of automated browser extension IDs in userAgent? not needed.
+        return false;
+      }
+      
+      // ----- Owner detection -----
       if (getQueryParam('owner_bypass') === OWNER_BYPASS_KEY) {
         setCookie('owner_access', '1');
         setCookie('ad_access_granted', '1');
         localStorage.setItem('owner_access', '1');
         localStorage.setItem('ad_access_granted', '1');
       }
-
-      // ----- DETECT AND BLOCK FACEBOOK AD LIBRARY PREVIEWS -----
+      
+      // ----- Real ad click detection (Facebook, Google, TikTok) -----
       let isAdClick = false;
       let adSource = null;
-      let isFromAdLibrary = false;
-
-      // 1) Check referrer FIRST - detect Facebook Ad Library
-      const referrer = document.referrer ? document.referrer.toLowerCase() : '';
-      
-      // CRITICAL: Block if referrer is from Facebook Ad Library
-      if (referrer.includes('facebook.com/ads/library') || 
-          referrer.includes('facebook.com/ads/library/') ||
-          referrer.includes('business.facebook.com/ads/library') ||
-          (referrer.includes('ads/library') && referrer.includes('facebook.com'))) {
-        isFromAdLibrary = true;
-      }
-
-      // 2) Check if page is embedded in iframe from Ad Library
-      try {
-        if (window.self !== window.top) {
-          const parentRef = document.referrer.toLowerCase();
-          if (parentRef.includes('facebook.com/ads/library') || parentRef.includes('ads/library')) {
-            isFromAdLibrary = true;
-          }
-        }
-      } catch(e) {
-        // Cross-origin iframe - cannot access parent, check referrer again
-        if (referrer.includes('facebook.com/ads/library')) {
-          isFromAdLibrary = true;
-        }
-      }
-
-      // 3) Check for Meta crawler without valid ad parameters (Ad Library preview bot)
-      const userAgent = navigator.userAgent.toLowerCase();
-      const isMetaCrawler = userAgent.includes('facebookexternalhit') || 
-                            userAgent.includes('facebot') ||
-                            userAgent.includes('meta-externalagent');
       
       const fbclid = getQueryParam('fbclid');
-      const hasValidFbclid = fbclid && fbclid.length > 20 && /^[A-Za-z0-9_-]+$/.test(fbclid);
-      
-      // If Meta crawler WITHOUT valid fbclid → likely Ad Library preview
-      if (isMetaCrawler && !hasValidFbclid && !isFromAdLibrary) {
-        isFromAdLibrary = true;
+      if (fbclid && fbclid.length > 20 && /^[A-Za-z0-9_-]+$/.test(fbclid)) {
+        isAdClick = true;
+        adSource = 'facebook';
       }
-
-      // 4) Check URL parameters for real ad clicks (ONLY if NOT from Ad Library)
-      if (!isFromAdLibrary) {
-        const fbclid = getQueryParam('fbclid');
-        if (fbclid && fbclid.length > 20 && /^[A-Za-z0-9_-]+$/.test(fbclid)) {
+      
+      const gclid = getQueryParam('gclid');
+      if (!isAdClick && gclid && gclid.length > 15) {
+        isAdClick = true;
+        adSource = 'google';
+      }
+      
+      const ttclid = getQueryParam('ttclid');
+      if (!isAdClick && ttclid && ttclid.length > 0) {
+        isAdClick = true;
+        adSource = 'tiktok';
+      }
+      
+      // Check referrer for ad platforms
+      const referrer = document.referrer.toLowerCase();
+      if (!isAdClick && referrer) {
+        if (referrer.includes('facebook.com') || referrer.includes('l.facebook.com') || referrer.includes('messenger.com')) {
           isAdClick = true;
           adSource = 'facebook';
-        }
-
-        const gclid = getQueryParam('gclid');
-        if (!isAdClick && gclid && gclid.length > 15) {
+        } else if (referrer.includes('google.com')) {
           isAdClick = true;
           adSource = 'google';
-        }
-
-        const ttclid = getQueryParam('ttclid');
-        if (!isAdClick && ttclid && ttclid.length > 0) {
+        } else if (referrer.includes('tiktok.com')) {
           isAdClick = true;
           adSource = 'tiktok';
         }
-
-        // 5) Check referrer for real ad clicks (EXCLUDING Ad Library)
-        if (!isAdClick && referrer) {
-          // Already excluded Ad Library above, so safe to check
-          if (referrer.includes('facebook.com') || referrer.includes('l.facebook.com') || referrer.includes('messenger.com')) {
-            isAdClick = true;
-            adSource = 'facebook';
-          } else if (referrer.includes('google.com')) {
-            isAdClick = true;
-            adSource = 'google';
-          } else if (referrer.includes('tiktok.com')) {
-            isAdClick = true;
-            adSource = 'tiktok';
-          }
-        }
       }
-
-      // Grant access for real ad clicks (only if NOT from Ad Library)
-      if (isAdClick && !isFromAdLibrary) {
+      
+      if (isAdClick) {
         setCookie('ad_access_granted', '1');
         if (adSource) setCookie('ad_source', adSource);
         localStorage.setItem('ad_access_granted', '1');
       }
-
-      // ----- FINAL ACCESS CHECK -----
+      
+      // ----- Ad Library detection (stronger than ad click) -----
+      const isLibraryTraffic = isAdLibraryTraffic();
+      
+      // ----- Final access check -----
       const isOwner = (getCookie('owner_access') === '1') || (localStorage.getItem('owner_access') === '1');
       const isAdAudience = (getCookie('ad_access_granted') === '1') || (localStorage.getItem('ad_access_granted') === '1');
       
-      // BLOCK if from Ad Library preview, otherwise allow if owner or ad audience
-      const allowed = !isFromAdLibrary && (isOwner || isAdAudience);
-
+      // Core rule: owner always allowed (bypasses everything including ad library blocks)
+      // Non-owner: must be ad audience AND NOT coming from ad library traffic
+      let allowed = false;
+      if (isOwner) {
+        allowed = true;
+        console.log('[Access] Owner access granted');
+      } else if (isLibraryTraffic) {
+        // Explicitly block any traffic identified as ad library / verification bot
+        allowed = false;
+        console.log('[Access] Blocked because ad library traffic detected');
+      } else if (isAdAudience) {
+        allowed = true;
+        console.log('[Access] Ad audience access granted');
+      } else {
+        allowed = false;
+        console.log('[Access] Blocked: no valid ad click or owner bypass');
+      }
+      
       if (!allowed) {
-        // Blocked: remove React app, show 404 overlay
+        // Blocked: remove React root and script, show 404 overlay (ad library / invalid access)
         const reactScript = document.querySelector('script[type="module"][src*="/src/main.jsx"]');
         if (reactScript) reactScript.remove();
         const root = document.getElementById('root');
         if (root) root.remove();
-
+        
+        // Create 404 overlay with extra note (optional but keeps consistent)
         const overlay = document.createElement('div');
         overlay.id = 'access-denied-overlay';
         overlay.style.cssText = `
@@ -194,11 +258,24 @@
           z-index: 10000;
         `;
         overlay.innerHTML = `
-          <div style="background: rgba(255,255,255,0.1); backdrop-filter: blur(10px); border-radius: 20px; padding: 60px 40px; text-align: center; max-width: 500px; width: 100%; box-shadow: 0 20px 60px rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.2);">
+          <div style="
+            background: rgba(255,255,255,0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 60px 40px;
+            text-align: center;
+            max-width: 500px;
+            width: 100%;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            border: 1px solid rgba(255,255,255,0.2);
+          ">
             <div style="font-size: 64px; margin-bottom: 30px;">🔒</div>
             <div style="font-size: 120px; font-weight: 800; margin-bottom: 20px;">404</div>
             <h1 style="font-size: 32px; margin-bottom: 20px;">Page Not Found</h1>
-            <p style="font-size: 18px; line-height: 1.6; opacity: 0.9;">The page you are looking for could not be found.<br>Please check the URL or contact support.</p>
+            <p style="font-size: 18px; line-height: 1.6; opacity: 0.9;">
+              The page you are looking for could not be found.<br>
+              Please check the URL or contact support.
+            </p>
           </div>
         `;
         document.body.appendChild(overlay);
@@ -207,7 +284,7 @@
         if (style) style.remove();
         return;
       }
-
+      
       // Allowed: show the React app
       const root = document.getElementById('root');
       if (root) root.style.display = '';
