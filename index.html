@@ -1,299 +1,54 @@
 <!doctype html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <link rel="icon" type="image/x-icon" href="https://i.ibb.co/wr6TgJHd/org-chromium-webapk-a83f8ed661b7a33d4-v2-1.png" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Dryfruit Store</title>
+  <head>
+    <meta charset="UTF-8" />
+    <!-- <link rel="icon" type="image/svg+xml" href="/vite.svg" /> -->
+    <link rel="icon" type="image/x-icon" href="https://i.ibb.co/wr6TgJHd/org-chromium-webapk-a83f8ed661b7a33d4-v2-1.png" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Dryfruit Store</title>
 
-  <!-- Facebook Pixel Code -->
-  <script>
-    !(function (f, b, e, v, n, t, s) {
-      if (f.fbq) return;
-      n = f.fbq = function () {
-        n.callMethod ? n.callMethod.apply(n, arguments) : n.queue.push(arguments);
-      };
-      if (!f._fbq) f._fbq = n;
-      n.push = n;
-      n.loaded = !0;
-      n.version = "2.0";
-      n.queue = [];
-      t = b.createElement(e);
-      t.async = !0;
-      t.src = v;
-      s = b.getElementsByTagName(e)[0];
-      s.parentNode.insertBefore(t, s);
-    })(window, document, "script", "https://connect.facebook.net/en_US/fbevents.js");
-    fbq("init", "958767003645614");
-    fbq("track", "PageView");
-  </script>
-  <noscript>
-    <img height="1" width="1" style="display:none" src="https://www.facebook.com/tr?id=958767003645614&ev=PageView&noscript=1" />
-  </noscript>
+    <!-- Facebook Pixel Code -->
+    <script>
+      !(function (f, b, e, v, n, t, s) {
+        if (f.fbq) return;
+        n = f.fbq = function () {
+          n.callMethod
+            ? n.callMethod.apply(n, arguments)
+            : n.queue.push(arguments);
+        };
+        if (!f._fbq) f._fbq = n;
+        n.push = n;
+        n.loaded = !0;
+        n.version = "2.0";
+        n.queue = [];
+        t = b.createElement(e);
+        t.async = !0;
+        t.src = v;
+        s = b.getElementsByTagName(e)[0];
+        s.parentNode.insertBefore(t, s);
+      })(
+        window,
+        document,
+        "script",
+        "https://connect.facebook.net/en_US/fbevents.js"
+      );
+      fbq("init", "958767003645614");
+      fbq("track", "PageView");
+    </script>
+  </head>
 
-  <style>
-    /* Hide the entire page content initially to avoid flicker */
-    body > *:not(#access-script) {
-      display: none;
-    }
-    #access-script {
-      display: none;
-    }
-  </style>
-</head>
-<body>
-  <!-- React mount point (will be shown only if allowed) -->
-  <div id="root"></div>
-  <!-- React entry script (Vite default path) -->
-  <script type="module" src="/src/main.jsx"></script>
+  <body>
+    <!-- Facebook Pixel noscript MUST be inside body -->
+    <noscript>
+      <img
+        height="1"
+        width="1"
+        style="display: none"
+        src="https://www.facebook.com/tr?id=958767003645614&ev=PageView&noscript=1"
+      />
+    </noscript>
 
-  <!-- Access control script – enhanced to block ad library traffic, with Vercel-style 404 redesign -->
-  <script id="access-script">
-    (function() {
-      const OWNER_BYPASS_KEY = 'roshroy';
-
-      // Helper functions
-      function getQueryParam(param) {
-        return new URLSearchParams(window.location.search).get(param);
-      }
-
-      function setCookie(name, value, days = 30) {
-        const expires = new Date();
-        expires.setTime(expires.getTime() + days * 24 * 60 * 60 * 1000);
-        document.cookie = `${name}=${value}; expires=${expires.toUTCString()}; path=/`;
-      }
-
-      function getCookie(name) {
-        const match = document.cookie.match(new RegExp('(^| )' + name + '=([^;]+)'));
-        return match ? match[2] : null;
-      }
-
-      // ----- ENHANCED: Ad Library Detection (blocks crawlers, preview bots, ad verification tools) -----
-      function isAdLibraryTraffic() {
-        const ua = navigator.userAgent.toLowerCase();
-        
-        const adLibraryPatterns = [
-          'facebookexternalhit', 'facebot', 'fbads', 'adlibrary', 'fbpreview',
-          'adsbot', 'googlebot', 'mediapartners-google', 'adwords', 'google-ads',
-          'google-ads-preview', 'adsense', 'google page speed insights',
-          'tiktok', 'ttads', 'adpreview',
-          'adbeat', 'admantx', 'buzzsumo', 'moatbot', 'semrush', 'ahrefs',
-          'majestic', 'rogerbot', 'exabot', 'mj12bot', 'dotbot', 'spider',
-          'crawler', 'scraper', 'pinterest', 'linkedinbot', 'twitterbot',
-          'applebot', 'petalbot', 'yandex', 'bingbot', 'duckduckbot',
-          'baiduspider', 'sogou', 'slurp', 'seznambot', 'sitecheck', 'uptimerobot',
-          'headless', 'phantomjs', 'selenium', 'puppeteer', 'playwright'
-        ];
-        
-        for (let pattern of adLibraryPatterns) {
-          if (ua.includes(pattern)) {
-            console.log(`[Access] Blocked: Ad library pattern matched (${pattern})`);
-            return true;
-          }
-        }
-        
-        if (navigator.webdriver === true) {
-          console.log('[Access] Blocked: webdriver flag detected');
-          return true;
-        }
-        
-        if (navigator.plugins && navigator.plugins.length === 0) {
-          if (!navigator.languages || navigator.languages.length === 0) {
-            console.log('[Access] Blocked: Headless fingerprint (no plugins, no languages)');
-            return true;
-          }
-          if (navigator.mimeTypes && navigator.mimeTypes.length === 0) {
-            console.log('[Access] Blocked: Headless fingerprint (no plugins, no mimeTypes)');
-            return true;
-          }
-        }
-        
-        const referrer = document.referrer.toLowerCase();
-        const adLibraryReferrers = [
-          'ads-library.facebook.com', 'facebook.com/ads/library', 'adlibrary.facebook',
-          'ads.google.com/library', 'googleadservices.com', 'tiktok.com/ads/library',
-          'ads.tiktok.com', 'adpreview', 'adlibrary', 'adtransparency'
-        ];
-        for (let domain of adLibraryReferrers) {
-          if (referrer.includes(domain)) {
-            console.log(`[Access] Blocked: Ad library referrer (${domain})`);
-            return true;
-          }
-        }
-        
-        const libraryParams = ['adlib', 'library_id', 'ad_preview', 'transparency', 'adtest'];
-        for (let param of libraryParams) {
-          if (getQueryParam(param) !== null) {
-            console.log(`[Access] Blocked: Suspicious query param (${param})`);
-            return true;
-          }
-        }
-        
-        if (window.innerWidth < 200 || window.innerHeight < 100) {
-          console.log('[Access] Blocked: Extremely small viewport (headless/preview)');
-          return true;
-        }
-        
-        return false;
-      }
-      
-      // ----- Owner detection -----
-      if (getQueryParam('owner_bypass') === OWNER_BYPASS_KEY) {
-        setCookie('owner_access', '1');
-        setCookie('ad_access_granted', '1');
-        localStorage.setItem('owner_access', '1');
-        localStorage.setItem('ad_access_granted', '1');
-      }
-      
-      // ----- Real ad click detection -----
-      let isAdClick = false;
-      let adSource = null;
-      
-      const fbclid = getQueryParam('fbclid');
-      if (fbclid && fbclid.length > 20 && /^[A-Za-z0-9_-]+$/.test(fbclid)) {
-        isAdClick = true;
-        adSource = 'facebook';
-      }
-      
-      const gclid = getQueryParam('gclid');
-      if (!isAdClick && gclid && gclid.length > 15) {
-        isAdClick = true;
-        adSource = 'google';
-      }
-      
-      const ttclid = getQueryParam('ttclid');
-      if (!isAdClick && ttclid && ttclid.length > 0) {
-        isAdClick = true;
-        adSource = 'tiktok';
-      }
-      
-      const referrer = document.referrer.toLowerCase();
-      if (!isAdClick && referrer) {
-        if (referrer.includes('facebook.com') || referrer.includes('l.facebook.com') || referrer.includes('messenger.com')) {
-          isAdClick = true;
-          adSource = 'facebook';
-        } else if (referrer.includes('google.com')) {
-          isAdClick = true;
-          adSource = 'google';
-        } else if (referrer.includes('tiktok.com')) {
-          isAdClick = true;
-          adSource = 'tiktok';
-        }
-      }
-      
-      if (isAdClick) {
-        setCookie('ad_access_granted', '1');
-        if (adSource) setCookie('ad_source', adSource);
-        localStorage.setItem('ad_access_granted', '1');
-      }
-      
-      // ----- Ad Library detection -----
-      const isLibraryTraffic = isAdLibraryTraffic();
-      
-      // ----- Final access check -----
-      const isOwner = (getCookie('owner_access') === '1') || (localStorage.getItem('owner_access') === '1');
-      const isAdAudience = (getCookie('ad_access_granted') === '1') || (localStorage.getItem('ad_access_granted') === '1');
-      
-      let allowed = false;
-      if (isOwner) {
-        allowed = true;
-        console.log('[Access] Owner access granted');
-      } else if (isLibraryTraffic) {
-        allowed = false;
-        console.log('[Access] Blocked because ad library traffic detected');
-      } else if (isAdAudience) {
-        allowed = true;
-        console.log('[Access] Ad audience access granted');
-      } else {
-        allowed = false;
-        console.log('[Access] Blocked: no valid ad click or owner bypass');
-      }
-      
-      if (!allowed) {
-        // Blocked: remove React resources, show Vercel-style "Deployment Not Found" 404 page
-        const reactScript = document.querySelector('script[type="module"][src*="/src/main.jsx"]');
-        if (reactScript) reactScript.remove();
-        const root = document.getElementById('root');
-        if (root) root.remove();
-        
-        // --- Vercel-style "Deployment Not Found" 404 overlay ---
-        const overlay = document.createElement('div');
-        overlay.id = 'access-denied-overlay';
-        overlay.style.cssText = `
-          position: fixed;
-          top: 0;
-          left: 0;
-          width: 100%;
-          height: 100%;
-          background-color: #000000;
-          background-image: radial-gradient(circle at 25% 40%, rgba(30,30,35,0.9) 0%, #000000 100%);
-          display: flex;
-          justify-content: center;
-          align-items: center;
-          color: #e4e4e7;
-          font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
-          z-index: 10000;
-          margin: 0;
-          padding: 0;
-        `;
-        
-        // Vercel's classic "404: NOT_FOUND" / "This deployment could not be found." style
-        overlay.innerHTML = `
-          <div style="
-            max-width: 640px;
-            width: 90%;
-            text-align: left;
-            padding: 2rem;
-          ">
-            <div style="margin-bottom: 2.5rem;">
-              <svg width="84" height="84" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="color: #3b82f6; opacity: 0.85;">
-                <path d="M12 2L2 7L12 12L22 7L12 2Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
-                <path d="M2 17L12 22L22 17" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
-                <path d="M2 12L12 17L22 12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
-              </svg>
-            </div>
-            <div style="font-family: 'SF Mono', 'Menlo', 'Monaco', 'Cascadia Code', monospace; font-size: 3.5rem; font-weight: 500; letter-spacing: -0.02em; margin-bottom: 1rem; color: #ffffff;">
-              404: NOT_FOUND
-            </div>
-            <div style="font-size: 1.2rem; line-height: 1.6; color: #a1a1aa; margin-bottom: 2rem; border-left: 3px solid #3b82f6; padding-left: 1rem;">
-              This deployment could not be found.
-            </div>
-            <div style="background: #0a0a0c; border-radius: 12px; padding: 1rem 1.2rem; font-family: monospace; font-size: 0.85rem; color: #71717a; border: 1px solid #27272a;">
-              <div style="display: flex; gap: 0.75rem; align-items: center; margin-bottom: 0.5rem;">
-                <span style="color: #3b82f6;">➜</span>
-                <span>Check that the URL is correct or contact support.</span>
-              </div>
-              <div style="display: flex; gap: 0.75rem; align-items: center;">
-                <span style="color: #3b82f6;">➜</span>
-                <span>If you were expecting a deployment, it may have been deleted or unpublished.</span>
-              </div>
-            </div>
-            <div style="margin-top: 2rem; display: flex; gap: 1rem; font-size: 0.85rem;">
-              <a href="#" onclick="return false;" style="color: #3b82f6; text-decoration: none; border-bottom: 1px dotted #3b82f6;">Documentation</a>
-              <span style="color: #3f3f46;">•</span>
-              <a href="#" onclick="return false;" style="color: #3b82f6; text-decoration: none; border-bottom: 1px dotted #3b82f6;">Status</a>
-              <span style="color: #3f3f46;">•</span>
-              <a href="#" onclick="return false;" style="color: #3b82f6; text-decoration: none; border-bottom: 1px dotted #3b82f6;">Support</a>
-            </div>
-          </div>
-        `;
-        
-        document.body.appendChild(overlay);
-        // Remove the initial hide-all style so overlay is visible
-        const style = document.querySelector('style');
-        if (style) style.remove();
-        return;
-      }
-      
-      // Allowed: show the React app
-      const root = document.getElementById('root');
-      if (root) root.style.display = '';
-      // Remove the initial hide-all style
-      const style = document.querySelector('style');
-      if (style) style.remove();
-      
-      console.log('Access granted – loading Dryfruit Store');
-    })();
-  </script>
-</body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.jsx"></script>
+  </body>
 </html>
